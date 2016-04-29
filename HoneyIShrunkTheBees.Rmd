@@ -1,7 +1,74 @@
 ---
 title: "Honey I Shrunk the Bees!"
-output: html_document
+author: "Chris G Martin"
+date: "May 15, 2016"
+output:
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    highlight: pygments
+    theme: cerulean
+  pdf_document: default
 ---
 
 
+
 https://quickstats.nass.usda.gov/
+
+
+```{r include=FALSE, cache=FALSE}
+# DO NOT REMOVE
+# THIS IS FOR SETTING SOME PLOTTING PARAMETERS SO THAT YOUR PLOTS DON'T TAKE UP TOO MUCH SPACE
+# IF YOU WOULD LIKE TO CHANGE THESE, SEE HELP FILES ON THE par() FUNCTION
+# OR ASK FOR HELP
+library(knitr)
+## set global chunk options
+opts_chunk$set(fig.path='figure/manual-', cache.path='cache/manual-', fig.align='center', fig.show='hold', par=TRUE)
+## tune details of base graphics (http://yihui.name/knitr/hooks)
+knit_hooks$set(par=function(before, options, envir){
+if (before && options$fig.show!='none') par(mar=c(4,4,.2,.1),cex.lab=.95,cex.axis=.9,mgp=c(2,.7,0),tcl=-.3)
+})
+```
+
+```{r echo=FALSE}
+# load data
+
+```
+
+
+### Part 1 - Introduction:
+
+Bees: the most effective pollinator on the planet. In the United States, we seem to have a love/hate relationship with these facinating creatures. on the one hand we are well aware and appreciative of their role in nature and yet the number of bees is quickly dwindling. But, one of the many questions we will explore here is: do we rely on them?
+
+By looking at a variety of data, we hope to find links between the production of honey and other agricultural statistics.
+
+#### Why Honey:
+
+Collecting honey is an ancient tradition dating back to at least 8,000 years ago$^1$. It's a product made by bees while foraging for nectar from flowers. While honey bees are the most common type of bee that produces honey that humans extract for food, there are a number of other bees and wasps that do create honey, and all bees and other insects pollinate. For the purposes of this project, we are going to ignore the details and make the assumption that honey is directly related to bees.
+
+Many/most/all beekeepers harvest honey from their bees as a source of income, but they also sell or rent hives to farms. As the number of bees across the world have steadily dropped (for several reasons, none-of-which we will explore here), renting or selling hives has become a lucrative business. The sold or leased bees are taken to a farm and help to naturally pollinate farms and the lands around them, helping the farmer to grow crop, cultivate land, fertilize land, and develop the land more effectively. Since the bees return to the hive after foraging, they make honey from the nectar, are returned the beekeeper or farmer, who in turn can harvest the honey.
+
+### Part 2 - Data:
+
+
+### Part 3 - Exploratory data analysis:
+
+
+### Part 4 - Inference:
+
+
+### Part 5 - Conclusion: 
+
+
+### References:
+
+[1]  Crane, Eva (1983) The Archaeology of Beekeeping, Cornell University Press, ISBN 0-8014-1609-4
+
+
+
+### Appendix (optional):
+
+Remove this section if you don't have an appendix
+
+
+
