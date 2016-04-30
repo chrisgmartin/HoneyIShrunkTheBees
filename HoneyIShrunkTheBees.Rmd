@@ -29,11 +29,6 @@ if (before && options$fig.show!='none') par(mar=c(4,4,.2,.1),cex.lab=.95,cex.axi
 })
 ```
 
-```{r echo=FALSE}
-# load data
-
-```
-
 
 ### Part 1 - Introduction:
 
@@ -57,9 +52,26 @@ Many/most/all beekeepers harvest honey from their bees as a source of income, bu
 The first set of data we gathered came from the [National Agriculture Statistics Service website](https://quickstats.nass.usda.gov/), which houses a large amount of data related to United States Agriculture. The website stores census and survey data on a number of subjects (the main categories are animals, products, crops, demographics, economics, and environment) across a number of geographic levels (national, state, county, and zip code) for a number of years. The data can be access by the website UI allowing the user to select each subject, geographic level, and year which can then be exported into a .CSV file, or the entire database can be downloaded as a text file after extracting the database .GZ. For our purposes, it was simple enough to query the database using the website rather than have to deal with the large and cumbersome dataset. The queries were then saved into seperate .CSV files, uploaded to GitHub, and are ready to import into R:
 
 ```{r}
-#import files
 
 
+#County Data
+county1 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/CAHoneyCensus_County_2012.csv", header = TRUE) #Honey Census 2012 with no other years
+county2 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USAChemicalandFertilizerTotals_County_allyears.csv", header = TRUE)
+county3 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USACropTotalsCensus_County_allyears.csv", header = TRUE)
+county4 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USAHoneyCensus_County_allyears.csv", header = TRUE)
+county5 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USAHorticultureCensus_County_allyears.csv", header = TRUE)
+
+#State Data
+state1 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USAHoneySurvey_State_allyears.csv", header = TRUE) #State Survey (no county survey)
+state2 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USAChemicalandFertilizerTotals_State_allyears.csv", header = TRUE)
+state3 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USACropTotalsCensus_State_allyears.csv", header = TRUE)
+state4 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USAHoneyCensus_State_allyears.csv", header = TRUE)
+state5 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USAHorticultureCensus_State_allyears.csv", header = TRUE)
+
+
+#check some data
+kable(head(county1))
+kable(head(state3))
 ```
 
 
