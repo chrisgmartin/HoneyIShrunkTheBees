@@ -252,362 +252,223 @@ div.tocify {
 <p>Here I outline the data import process, review the data, clean it, tidy it, and structure it to suit our needs.</p>
 <div id="data-import" class="section level3">
 <h3>Data Import:</h3>
-<p>ISJDIOFJLSDKFJL This section is used to describe how we import data?</p>
+<p>What is likely to be the most important part of any analysis, we need data to analyse. Fortunately for our project, there is a plethora of data freely available from a variety of sources.</p>
+<p>After following some detailed <a href="https://stackoverflow.com/questions/10292326/how-to-connect-r-with-mysql-or-how-to-install-rmysql-package">Stack Overflow</a> tips, I was able to connect to a local MySQL server that I created called ‘HISP’ (Honey, I Shrunk the Production). The HISP database stored a data from the sources below.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(RODBC)
+con &lt;-<span class="st"> </span><span class="kw">odbcConnect</span>(<span class="st">&quot;hisp&quot;</span>)
+<span class="kw">sqlQuery</span>(con, <span class="st">&quot;use hisp&quot;</span>)</code></pre></div>
+<pre><code>## [1] &quot;No Data&quot;</code></pre>
 <div id="national-agriculture-statistics-service" class="section level4">
 <h4>National Agriculture Statistics Service:</h4>
-<p>The first set of data we gathered came from the <a href="https://quickstats.nass.usda.gov/">National Agriculture Statistics Service website</a>, which houses a large amount of data related to United States Agriculture. The website stores census and survey data on a number of subjects (the main categories are animals, products, crops, demographics, economics, and environment) across a number of geographic levels (national, state, county, and zip code) for a number of years. The data can be access by the website UI allowing the user to select each subject, geographic level, and year which can then be exported into a .CSV file, or the entire database can be downloaded as a text file after extracting the database .GZ. For our purposes, it was simple enough to query the database using the website rather than have to deal with the large and cumbersome dataset. The queries were then saved into seperate .CSV files, uploaded to GitHub, and ready to import into R:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#County Data</span>
-county1 &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/CAHoneyCensus_County_2012.csv&quot;</span>, <span class="dt">header =</span> <span class="ot">TRUE</span>) <span class="co">#Honey Census 2012 with no other years</span>
-county2 &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USAChemicalandFertilizerTotals_County_allyears.csv&quot;</span>, <span class="dt">header =</span> <span class="ot">TRUE</span>)
-county3 &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USACropTotalsCensus_County_allyears.csv&quot;</span>, <span class="dt">header =</span> <span class="ot">TRUE</span>)
-county4 &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USAHoneyCensus_County_allyears.csv&quot;</span>, <span class="dt">header =</span> <span class="ot">TRUE</span>)
-county5 &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USAHorticultureCensus_County_allyears.csv&quot;</span>, <span class="dt">header =</span> <span class="ot">TRUE</span>)
-
-<span class="co">#State Data</span>
-state1 &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USAHoneySurvey_State_allyears.csv&quot;</span>, <span class="dt">header =</span> <span class="ot">TRUE</span>) <span class="co">#State Survey (no county survey)</span>
-state2 &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USAChemicalandFertilizerTotals_State_allyears.csv&quot;</span>, <span class="dt">header =</span> <span class="ot">TRUE</span>)
-state3 &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USACropTotalsCensus_State_allyears.csv&quot;</span>, <span class="dt">header =</span> <span class="ot">TRUE</span>)
-state4 &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USAHoneyCensus_State_allyears.csv&quot;</span>, <span class="dt">header =</span> <span class="ot">TRUE</span>)
-state5 &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USAHorticultureCensus_State_allyears.csv&quot;</span>, <span class="dt">header =</span> <span class="ot">TRUE</span>)
-
-
-<span class="co">#check some data</span>
-<span class="kw">kable</span>(<span class="kw">head</span>(county1))</code></pre></div>
+<p>The first set of data we gathered came from the <a href="https://quickstats.nass.usda.gov/">National Agriculture Statistics Service website</a>, which houses a large amount of data related to United States Agriculture. The website stores census and survey data on a number of subjects (the main categories are animals, products, crops, demographics, economics, and environment) across a number of geographic levels (national, state, county, and zip code) for a number of years. The data can be access by the website UI allowing the user to select each subject, geographic level, and year which can then be exported into a .CSV file, or the entire database can be downloaded as a text file after extracting the database .GZ. For our purposes, it was simple enough to query the database using the website rather than have to deal with the large and cumbersome dataset. The queries were then saved into seperate .CSV files, uploaded to GitHub, imported into MySQL, and prepped to be ready to import into R:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#Example of an individual report</span>
+<span class="co">#This report displays only one year of data on a honey production census</span>
+honeycensus2012 &lt;-<span class="st"> </span><span class="kw">sqlQuery</span>(con, <span class="st">&quot;select * from cahoneycensus_county_2012&quot;</span>)
+<span class="kw">kable</span>(<span class="kw">summary</span>(honeycensus2012))</code></pre></div>
 <table>
 <thead>
 <tr class="header">
-<th align="left">Program</th>
-<th align="right">Year</th>
-<th align="left">Period</th>
-<th align="left">Week.Ending</th>
-<th align="left">Geo.Level</th>
-<th align="left">State</th>
-<th align="right">State.ANSI</th>
-<th align="left">Ag.District</th>
-<th align="right">Ag.District.Code</th>
-<th align="left">County</th>
-<th align="right">County.ANSI</th>
-<th align="left">Zip.Code</th>
-<th align="left">Region</th>
-<th align="right">watershed_code</th>
+<th align="left"></th>
+<th align="center">Program</th>
+<th align="center">Year</th>
+<th align="center">Period</th>
+<th align="left">Week Ending</th>
+<th align="center">Geo Level</th>
+<th align="center">State</th>
+<th align="center">State ANSI</th>
+<th align="center">Ag District</th>
+<th align="left">Ag District Code</th>
+<th align="center">County</th>
+<th align="center">County ANSI</th>
+<th align="left">Zip Code</th>
+<th align="center">Region</th>
+<th align="left">watershed_code</th>
 <th align="left">Watershed</th>
 <th align="left">Commodity</th>
-<th align="left">Data.Item</th>
-<th align="left">Domain</th>
-<th align="left">Domain.Category</th>
-<th align="left">Value</th>
-<th align="left">CV….</th>
+<th align="center">Data Item</th>
+<th align="center">Domain</th>
+<th align="center">Domain Category</th>
+<th align="center">Value</th>
+<th align="center">CV (%)</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">CENSUS</td>
-<td align="right">2012</td>
-<td align="left">YEAR</td>
-<td align="left">NA</td>
-<td align="left">COUNTY</td>
-<td align="left">CALIFORNIA</td>
-<td align="right">6</td>
-<td align="left">CENTRAL COAST</td>
-<td align="right">40</td>
-<td align="left">ALAMEDA</td>
-<td align="right">1</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="right">0</td>
-<td align="left">NA</td>
-<td align="left">HONEY</td>
-<td align="left">HONEY - OPERATIONS WITH PRODUCTION</td>
-<td align="left">TOTAL</td>
-<td align="left">NOT SPECIFIED</td>
-<td align="left">13</td>
-<td align="left">23.8</td>
+<td align="left"></td>
+<td align="center">CENSUS:197</td>
+<td align="center">Min. :2012</td>
+<td align="center">YEAR:197</td>
+<td align="left">Mode:logical</td>
+<td align="center">COUNTY:197</td>
+<td align="center">CALIFORNIA:197</td>
+<td align="center">Min. :6</td>
+<td align="center">CENTRAL COAST :47</td>
+<td align="left">Min. :10.00</td>
+<td align="center">ALAMEDA : 4</td>
+<td align="center">Min. : 1.00</td>
+<td align="left">Mode:logical</td>
+<td align="center">Mode:logical</td>
+<td align="left">Min. :0</td>
+<td align="left">Mode:logical</td>
+<td align="left">HONEY:197</td>
+<td align="center">HONEY - OPERATIONS WITH PRODUCTION:56</td>
+<td align="center">TOTAL:197</td>
+<td align="center">NOT SPECIFIED:197</td>
+<td align="center">2 : 10</td>
+<td align="center">Min. :16.10</td>
 </tr>
 <tr class="even">
-<td align="left">CENSUS</td>
-<td align="right">2012</td>
-<td align="left">YEAR</td>
+<td align="left"></td>
+<td align="center">NA</td>
+<td align="center">1st Qu.:2012</td>
+<td align="center">NA</td>
+<td align="left">NA’s:197</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">1st Qu.:6</td>
+<td align="center">SIERRA MOUNTAINS :33</td>
+<td align="left">1st Qu.:40.00</td>
+<td align="center">AMADOR : 4</td>
+<td align="center">1st Qu.: 29.00</td>
+<td align="left">NA’s:197</td>
+<td align="center">NA’s:197</td>
+<td align="left">1st Qu.:0</td>
+<td align="left">NA’s:197</td>
 <td align="left">NA</td>
-<td align="left">COUNTY</td>
-<td align="left">CALIFORNIA</td>
-<td align="right">6</td>
-<td align="left">CENTRAL COAST</td>
-<td align="right">40</td>
-<td align="left">ALAMEDA</td>
-<td align="right">1</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="right">0</td>
-<td align="left">NA</td>
-<td align="left">HONEY</td>
-<td align="left">HONEY - OPERATIONS WITH SALES</td>
-<td align="left">TOTAL</td>
-<td align="left">NOT SPECIFIED</td>
-<td align="left">13</td>
-<td align="left">29.2</td>
+<td align="center">HONEY - OPERATIONS WITH SALES :55</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">1 : 9</td>
+<td align="center">1st Qu.:18.20</td>
 </tr>
 <tr class="odd">
-<td align="left">CENSUS</td>
-<td align="right">2012</td>
-<td align="left">YEAR</td>
+<td align="left"></td>
+<td align="center">NA</td>
+<td align="center">Median :2012</td>
+<td align="center">NA</td>
 <td align="left">NA</td>
-<td align="left">COUNTY</td>
-<td align="left">CALIFORNIA</td>
-<td align="right">6</td>
-<td align="left">CENTRAL COAST</td>
-<td align="right">40</td>
-<td align="left">ALAMEDA</td>
-<td align="right">1</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">Median :6</td>
+<td align="center">SAN JOAQUIN VALLEY :32</td>
+<td align="left">Median :50.00</td>
+<td align="center">BUTTE : 4</td>
+<td align="center">Median : 59.00</td>
+<td align="left">NA</td>
+<td align="center">NA</td>
+<td align="left">Median :0</td>
 <td align="left">NA</td>
 <td align="left">NA</td>
-<td align="right">0</td>
-<td align="left">NA</td>
-<td align="left">HONEY</td>
-<td align="left">HONEY - PRODUCTION, MEASURED IN LB</td>
-<td align="left">TOTAL</td>
-<td align="left">NOT SPECIFIED</td>
-<td align="left">17,450</td>
-<td align="left">18.2</td>
+<td align="center">HONEY - PRODUCTION, MEASURED IN LB:44</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">9 : 8</td>
+<td align="center">Median :23.80</td>
 </tr>
 <tr class="even">
-<td align="left">CENSUS</td>
-<td align="right">2012</td>
-<td align="left">YEAR</td>
+<td align="left"></td>
+<td align="center">NA</td>
+<td align="center">Mean :2012</td>
+<td align="center">NA</td>
 <td align="left">NA</td>
-<td align="left">COUNTY</td>
-<td align="left">CALIFORNIA</td>
-<td align="right">6</td>
-<td align="left">CENTRAL COAST</td>
-<td align="right">40</td>
-<td align="left">ALAMEDA</td>
-<td align="right">1</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">Mean :6</td>
+<td align="center">SACRAMENTO VALLEY :31</td>
+<td align="left">Mean :50.16</td>
+<td align="center">CALAVERAS : 4</td>
+<td align="center">Mean : 59.23</td>
+<td align="left">NA</td>
+<td align="center">NA</td>
+<td align="left">Mean :0</td>
 <td align="left">NA</td>
 <td align="left">NA</td>
-<td align="right">0</td>
-<td align="left">NA</td>
-<td align="left">HONEY</td>
-<td align="left">HONEY - SALES, MEASURED IN $</td>
-<td align="left">TOTAL</td>
-<td align="left">NOT SPECIFIED</td>
-<td align="left">66,000</td>
-<td align="left">16.1</td>
+<td align="center">HONEY - SALES, MEASURED IN $ :42</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">13 : 6</td>
+<td align="center">Mean :22.42</td>
 </tr>
 <tr class="odd">
-<td align="left">CENSUS</td>
-<td align="right">2012</td>
-<td align="left">YEAR</td>
+<td align="left"></td>
+<td align="center">NA</td>
+<td align="center">3rd Qu.:2012</td>
+<td align="center">NA</td>
 <td align="left">NA</td>
-<td align="left">COUNTY</td>
-<td align="left">CALIFORNIA</td>
-<td align="right">6</td>
-<td align="left">CENTRAL COAST</td>
-<td align="right">40</td>
-<td align="left">CONTRA COSTA</td>
-<td align="right">13</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">3rd Qu.:6</td>
+<td align="center">SOUTHERN CALIFORNIA:30</td>
+<td align="left">3rd Qu.:60.00</td>
+<td align="center">CONTRA COSTA: 4</td>
+<td align="center">3rd Qu.: 89.00</td>
+<td align="left">NA</td>
+<td align="center">NA</td>
+<td align="left">3rd Qu.:0</td>
 <td align="left">NA</td>
 <td align="left">NA</td>
-<td align="right">0</td>
-<td align="left">NA</td>
-<td align="left">HONEY</td>
-<td align="left">HONEY - OPERATIONS WITH PRODUCTION</td>
-<td align="left">TOTAL</td>
-<td align="left">NOT SPECIFIED</td>
-<td align="left">18</td>
-<td align="left">23.8</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">18 : 6</td>
+<td align="center">3rd Qu.:29.20</td>
 </tr>
 <tr class="even">
-<td align="left">CENSUS</td>
-<td align="right">2012</td>
-<td align="left">YEAR</td>
+<td align="left"></td>
+<td align="center">NA</td>
+<td align="center">Max. :2012</td>
+<td align="center">NA</td>
 <td align="left">NA</td>
-<td align="left">COUNTY</td>
-<td align="left">CALIFORNIA</td>
-<td align="right">6</td>
-<td align="left">CENTRAL COAST</td>
-<td align="right">40</td>
-<td align="left">CONTRA COSTA</td>
-<td align="right">13</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">Max. :6</td>
+<td align="center">SISKIYOU-SHASTA :12</td>
+<td align="left">Max. :80.00</td>
+<td align="center">EL DORADO : 4</td>
+<td align="center">Max. :115.00</td>
+<td align="left">NA</td>
+<td align="center">NA</td>
+<td align="left">Max. :0</td>
 <td align="left">NA</td>
 <td align="left">NA</td>
-<td align="right">0</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">3 : 6</td>
+<td align="center">Max. :29.20</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
 <td align="left">NA</td>
-<td align="left">HONEY</td>
-<td align="left">HONEY - OPERATIONS WITH SALES</td>
-<td align="left">TOTAL</td>
-<td align="left">NOT SPECIFIED</td>
-<td align="left">9</td>
-<td align="left">29.2</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">(Other) :12</td>
+<td align="left">NA</td>
+<td align="center">(Other) :173</td>
+<td align="center">NA</td>
+<td align="left">NA</td>
+<td align="center">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">(Other):152</td>
+<td align="center">NA</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">kable</span>(<span class="kw">head</span>(state3))</code></pre></div>
-<table>
-<thead>
-<tr class="header">
-<th align="left">Program</th>
-<th align="right">Year</th>
-<th align="left">Period</th>
-<th align="left">Week.Ending</th>
-<th align="left">Geo.Level</th>
-<th align="left">State</th>
-<th align="right">State.ANSI</th>
-<th align="left">Ag.District</th>
-<th align="left">Ag.District.Code</th>
-<th align="left">County</th>
-<th align="left">County.ANSI</th>
-<th align="left">Zip.Code</th>
-<th align="left">Region</th>
-<th align="right">watershed_code</th>
-<th align="left">Watershed</th>
-<th align="left">Commodity</th>
-<th align="left">Data.Item</th>
-<th align="left">Domain</th>
-<th align="left">Domain.Category</th>
-<th align="left">Value</th>
-<th align="left">CV….</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">CENSUS</td>
-<td align="right">2014</td>
-<td align="left">YEAR</td>
-<td align="left">NA</td>
-<td align="left">STATE</td>
-<td align="left">ALABAMA</td>
-<td align="right">1</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="right">0</td>
-<td align="left">NA</td>
-<td align="left">CROP TOTALS</td>
-<td align="left">CROP TOTALS, ORGANIC - OPERATIONS WITH SALES</td>
-<td align="left">ORGANIC STATUS</td>
-<td align="left">ORGANIC STATUS: (NOP USDA CERTIFIED &amp; EXEMPT)</td>
-<td align="left">27</td>
-<td align="left">8.7</td>
-</tr>
-<tr class="even">
-<td align="left">CENSUS</td>
-<td align="right">2014</td>
-<td align="left">YEAR</td>
-<td align="left">NA</td>
-<td align="left">STATE</td>
-<td align="left">ALABAMA</td>
-<td align="right">1</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="right">0</td>
-<td align="left">NA</td>
-<td align="left">CROP TOTALS</td>
-<td align="left">CROP TOTALS, ORGANIC - SALES, MEASURED IN $</td>
-<td align="left">ORGANIC STATUS</td>
-<td align="left">ORGANIC STATUS: (NOP USDA CERTIFIED &amp; EXEMPT)</td>
-<td align="left">(D)</td>
-<td align="left">(D)</td>
-</tr>
-<tr class="odd">
-<td align="left">CENSUS</td>
-<td align="right">2014</td>
-<td align="left">YEAR</td>
-<td align="left">NA</td>
-<td align="left">STATE</td>
-<td align="left">ALASKA</td>
-<td align="right">2</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="right">0</td>
-<td align="left">NA</td>
-<td align="left">CROP TOTALS</td>
-<td align="left">CROP TOTALS, ORGANIC - OPERATIONS WITH SALES</td>
-<td align="left">ORGANIC STATUS</td>
-<td align="left">ORGANIC STATUS: (NOP USDA CERTIFIED &amp; EXEMPT)</td>
-<td align="left">17</td>
-<td align="left">5.8</td>
-</tr>
-<tr class="even">
-<td align="left">CENSUS</td>
-<td align="right">2014</td>
-<td align="left">YEAR</td>
-<td align="left">NA</td>
-<td align="left">STATE</td>
-<td align="left">ALASKA</td>
-<td align="right">2</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="right">0</td>
-<td align="left">NA</td>
-<td align="left">CROP TOTALS</td>
-<td align="left">CROP TOTALS, ORGANIC - SALES, MEASURED IN $</td>
-<td align="left">ORGANIC STATUS</td>
-<td align="left">ORGANIC STATUS: (NOP USDA CERTIFIED &amp; EXEMPT)</td>
-<td align="left">(D)</td>
-<td align="left">(D)</td>
-</tr>
-<tr class="odd">
-<td align="left">CENSUS</td>
-<td align="right">2014</td>
-<td align="left">YEAR</td>
-<td align="left">NA</td>
-<td align="left">STATE</td>
-<td align="left">ARIZONA</td>
-<td align="right">4</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="right">0</td>
-<td align="left">NA</td>
-<td align="left">CROP TOTALS</td>
-<td align="left">CROP TOTALS, ORGANIC - OPERATIONS WITH SALES</td>
-<td align="left">ORGANIC STATUS</td>
-<td align="left">ORGANIC STATUS: (NOP USDA CERTIFIED &amp; EXEMPT)</td>
-<td align="left">59</td>
-<td align="left">7.7</td>
-</tr>
-<tr class="even">
-<td align="left">CENSUS</td>
-<td align="right">2014</td>
-<td align="left">YEAR</td>
-<td align="left">NA</td>
-<td align="left">STATE</td>
-<td align="left">ARIZONA</td>
-<td align="right">4</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="right">0</td>
-<td align="left">NA</td>
-<td align="left">CROP TOTALS</td>
-<td align="left">CROP TOTALS, ORGANIC - SALES, MEASURED IN $</td>
-<td align="left">ORGANIC STATUS</td>
-<td align="left">ORGANIC STATUS: (NOP USDA CERTIFIED &amp; EXEMPT)</td>
-<td align="left">85,621,000</td>
-<td align="left">77.3</td>
-</tr>
-</tbody>
-</table>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#load the data</span>
+<span class="co">#honey_county &lt;- (sqlQuery(con, &quot;select * from honeycounty&quot;))</span>
+<span class="co">#honey_state &lt;- (sqlQuery(con, &quot;select * from honeystate&quot;))</span>
+
+<span class="co">#kable(head(honey_county))</span>
+<span class="co">#kable(head(honey_state))</span></code></pre></div>
 </div>
 <div id="data-on-bee-colonies" class="section level4">
 <h4>Data on Bee Colonies</h4>
@@ -630,7 +491,7 @@ state5 &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span clas
 </div>
 <div id="appendix-optional" class="section level2">
 <h2>Appendix (optional):</h2>
-<p>Remove this section if you don’t have an appendix</p>
+<p><a href="http://www.github.com/raw%20file%20to%20the%20appendix">Appendix 1: Data Merging in MySQL - NASS and</a></p>
 </div>
 
 
