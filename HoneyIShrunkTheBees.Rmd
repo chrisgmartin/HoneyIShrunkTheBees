@@ -30,30 +30,36 @@ if (before && options$fig.show!='none') par(mar=c(4,4,.2,.1),cex.lab=.95,cex.axi
 ```
 
 
-### Part 1 - Introduction:
+## Part 1 - Introduction:
 
 Bees: the most effective pollinator on the planet. In the United States, we seem to have a love/hate relationship with these facinating creatures. on the one hand we are well aware and appreciative of their role in nature and yet the number of bees is quickly dwindling. But, one of the many questions we will explore here is: do we rely on them?
 
 By looking at a variety of data, we hope to find links between the production of honey and other agricultural statistics.
 
-#### Why Honey:
+### Why Honey:
 
 Collecting honey is an ancient tradition dating back over 8,000 years ago$^1$. It's a product made by bees while foraging for nectar from flowers. While honey bees are the most common type of bee that produces honey that humans extract for food, there are a number of other bees and wasps that do create honey, and all bees and other insects pollinate. For the purposes of this project, we are going to ignore the details and make the assumption that honey is directly related to bees.
 
 Many/most/all beekeepers harvest honey from their bees as a source of income, but they also sell or rent hives to farms. As the number of bees across the world have steadily dropped (for several reasons, none-of-which we will explore here), renting or selling hives has become a lucrative business. The sold or leased bees are taken to a farm and help to naturally pollinate farms and the lands around them, helping the farmer to grow crop, cultivate land, fertilize land, and develop the land more effectively. Since the bees return to the hive after foraging, they make honey from the nectar, are returned the beekeeper or farmer, who in turn can harvest the honey.
 
 
-#### More Initial Observations:
+### More Initial Observations:
 
 
 
-### Part 2 - Data:
+## Part 2 - Data:
 
-The first set of data we gathered came from the [National Agriculture Statistics Service website](https://quickstats.nass.usda.gov/), which houses a large amount of data related to United States Agriculture. The website stores census and survey data on a number of subjects (the main categories are animals, products, crops, demographics, economics, and environment) across a number of geographic levels (national, state, county, and zip code) for a number of years. The data can be access by the website UI allowing the user to select each subject, geographic level, and year which can then be exported into a .CSV file, or the entire database can be downloaded as a text file after extracting the database .GZ. For our purposes, it was simple enough to query the database using the website rather than have to deal with the large and cumbersome dataset. The queries were then saved into seperate .CSV files, uploaded to GitHub, and are ready to import into R:
+Here I outline the data import process, review the data, clean it, tidy it, and structure it to suit our needs.
+
+### Data Import:
+
+What is likely to be the most important part of any analysis, we need data to analyse. Fortunately for our project, there is a plethora of data freely available from a variety of sources.
+
+#### National Agriculture Statistics Service:
+
+The first set of data we gathered came from the [National Agriculture Statistics Service website](https://quickstats.nass.usda.gov/), which houses a large amount of data related to United States Agriculture. The website stores census and survey data on a number of subjects (the main categories are animals, products, crops, demographics, economics, and environment) across a number of geographic levels (national, state, county, and zip code) for a number of years. The data can be access by the website UI allowing the user to select each subject, geographic level, and year which can then be exported into a .CSV file, or the entire database can be downloaded as a text file after extracting the database .GZ. For our purposes, it was simple enough to query the database using the website rather than have to deal with the large and cumbersome dataset. The queries were then saved into seperate .CSV files, uploaded to GitHub, and ready to import into R:
 
 ```{r}
-
-
 #County Data
 county1 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/CAHoneyCensus_County_2012.csv", header = TRUE) #Honey Census 2012 with no other years
 county2 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USAChemicalandFertilizerTotals_County_allyears.csv", header = TRUE)
@@ -75,23 +81,28 @@ kable(head(state3))
 ```
 
 
+#### Data on Bee Colonies
 
-### Part 3 - Exploratory data analysis:
-
-
-### Part 4 - Inference:
+To check if number of bees are going up or down?
 
 
-### Part 5 - Conclusion: 
+
+## Part 3 - Exploratory data analysis:
 
 
-### References:
+## Part 4 - Inference:
+
+
+## Part 5 - Conclusion: 
+
+
+## References:
 
 [1]  Crane, Eva (1983) The Archaeology of Beekeeping, Cornell University Press, ISBN 0-8014-1609-4
 
 
 
-### Appendix (optional):
+## Appendix (optional):
 
 Remove this section if you don't have an appendix
 
