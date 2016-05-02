@@ -47,9 +47,16 @@ Many/most/all beekeepers harvest honey from their bees as a source of income, bu
 
 
 
+
+
+
+
+
+
+
 ## Part 2 - Data:
 
-Here I outline the data import process, review the data, clean it, tidy it, and structure it to suit our needs. Please see the first appendix at the end for more details on this process.
+Here I outline the data import process, review the data, clean it, tidy it, and structure it to suit our needs. Please see the [first appendix](add link to the first appendix in GitHub) at the end for more details on this process. The MySQL queries can also be found there.
 
 ### Data Import:
 

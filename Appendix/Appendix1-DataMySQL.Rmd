@@ -9,7 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Appendix 1: Data from MySQL:
 
-For each dataset, the query was saved into seperate .CSV files, uploaded to GitHub, and imported into MySQL. From MySQL they were prepped to be ready to import into R. This section with detail the data files (original .CSV's), the source, and the queries that were used to create our final datasets: *honeystate* and *honeycounty*.
+For each dataset, the query was saved into seperate .CSV files, uploaded to GitHub, and imported into MySQL. From MySQL they were prepped to be ready to import into R. This section with detail the data files (original .CSV's), the source, and the queries that were used to create our final datasets: *honeystate* and *honeycounty*. The queries past the import wizard can be found here, and the query has been saved in [GitHub](add link to MySQL query).
 
 ### Data Import:
 
@@ -19,7 +19,9 @@ Simply enough, each .CSV was imported into a schema (titled **HISP**) using the 
 
 The first set of data we gathered came from the [National Agriculture Statistics Service website](https://quickstats.nass.usda.gov/), which houses a large amount of data related to United States Agriculture. The website stores census and survey data on a number of subjects (the main categories are animals, products, crops, demographics, economics, and environment) across a number of geographic levels (national, state, county, and zip code) for a number of years. The data can be access by the website UI allowing the user to select each subject, geographic level, and year which can then be exported into a .CSV file, or the entire database can be downloaded as a text file after extracting the database .GZ. For our purposes, it was simple enough to query the database using the website rather than have to deal with the large and cumbersome dataset. 
 
-```{r}
+If we were to import the data into R directly we'd use the following:
+
+```{r eval=FALSE}
 #County Data
 county1 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/CAHoneyCensus_County_2012.csv", header = TRUE) #Honey Census 2012 with no other years
 county2 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USAChemicalandFertilizerTotals_County_allyears.csv", header = TRUE)
@@ -33,12 +35,30 @@ state2 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkT
 state3 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USACropTotalsCensus_State_allyears.csv", header = TRUE)
 state4 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USAHoneyCensus_State_allyears.csv", header = TRUE)
 state5 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USAHorticultureCensus_State_allyears.csv", header = TRUE)
-
-
-#check some of data
-kable(head(county1))
-kable(head(state3))
 ```
+
+However, since the data is now in MySQL we query for the following table names:
+
+- cahoneycensus_county_2012
+
+- USAChemicalandFertilizerTotals_County_allyears
+
+- USAChemicalandFertilizerTotals_State_allyears
+
+- USACropTotalsCensus_County_allyears.csv
+
+- USACropTotalsCensus_State_allyears.csv
+
+- USAHoneyCensus_County_allyears.csv
+
+- USAHoneyCensus_State_allyears.csv
+
+- USAHoneySurvey_State_allyears.csv
+
+- USAHorticultureCensus_County_allyears.csv
+
+- USAHorticultureCensus_State_allyears.csv
+
 
 #### Data on Bee Colonies
 
