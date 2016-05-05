@@ -236,7 +236,7 @@ div.tocify {
 
 <div id="part-1---introduction" class="section level2">
 <h2>Part 1 - Introduction:</h2>
-<p>Bees: the most effective pollinator on the planet. In the United States, we seem to have a love/hate relationship with these facinating creatures. on the one hand we are well aware and appreciative of their role in nature and yet the number of bees is quickly dwindling. But, one of the many questions we will explore here is: do we rely on them?</p>
+<p>Bees: the most effective pollinator on the planet. In the United States, we seem to have a love/hate relationship with these facinating creatures: on the one hand we are well aware and appreciative of their role in nature and yet the number of bees is quickly dwindling without us giving any significant help. But, one of the many questions we will explore here is: do we rely on them?</p>
 <p>By looking at a variety of data, we hope to find links between the production of honey and other agricultural statistics.</p>
 <div id="why-honey" class="section level3">
 <h3>Why Honey:</h3>
@@ -249,7 +249,7 @@ div.tocify {
 </div>
 <div id="part-2---data" class="section level2">
 <h2>Part 2 - Data:</h2>
-<p>Here I outline the data import process, review the data, clean it, tidy it, and structure it to suit our needs.</p>
+<p>Here I outline the data import process, review the data, clean it, tidy it, and structure it to suit our needs. Please see the <a href="add%20link%20to%20the%20first%20appendix%20in%20GitHub">first appendix</a> at the end for more details on this process. The MySQL queries can also be found there.</p>
 <div id="data-import" class="section level3">
 <h3>Data Import:</h3>
 <p>What is likely to be the most important part of any analysis, we need data to analyse. Fortunately for our project, there is a plethora of data freely available from a variety of sources.</p>
@@ -261,223 +261,376 @@ con &lt;-<span class="st"> </span><span class="kw">odbcConnect</span>(<span clas
 <div id="national-agriculture-statistics-service" class="section level4">
 <h4>National Agriculture Statistics Service:</h4>
 <p>The first set of data we gathered came from the <a href="https://quickstats.nass.usda.gov/">National Agriculture Statistics Service website</a>, which houses a large amount of data related to United States Agriculture. The website stores census and survey data on a number of subjects (the main categories are animals, products, crops, demographics, economics, and environment) across a number of geographic levels (national, state, county, and zip code) for a number of years. The data can be access by the website UI allowing the user to select each subject, geographic level, and year which can then be exported into a .CSV file, or the entire database can be downloaded as a text file after extracting the database .GZ. For our purposes, it was simple enough to query the database using the website rather than have to deal with the large and cumbersome dataset. The queries were then saved into seperate .CSV files, uploaded to GitHub, imported into MySQL, and prepped to be ready to import into R:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#Example of an individual report</span>
-<span class="co">#This report displays only one year of data on a honey production census</span>
-honeycensus2012 &lt;-<span class="st"> </span><span class="kw">sqlQuery</span>(con, <span class="st">&quot;select * from cahoneycensus_county_2012&quot;</span>)
-<span class="kw">kable</span>(<span class="kw">summary</span>(honeycensus2012))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#load the data</span>
+honey_county &lt;-<span class="st"> </span>(<span class="kw">sqlQuery</span>(con, <span class="st">&quot;select * from honey_county&quot;</span>, <span class="dt">stringsAsFactors=</span><span class="ot">FALSE</span>))
+honey_state &lt;-<span class="st"> </span>(<span class="kw">sqlQuery</span>(con, <span class="st">&quot;select * from honey_state&quot;</span>, <span class="dt">stringsAsFactors=</span><span class="ot">FALSE</span>))
+
+<span class="kw">kable</span>(<span class="kw">head</span>(honey_county))</code></pre></div>
 <table>
 <thead>
 <tr class="header">
-<th align="left"></th>
-<th align="center">Program</th>
-<th align="center">Year</th>
-<th align="center">Period</th>
-<th align="left">Week Ending</th>
-<th align="center">Geo Level</th>
-<th align="center">State</th>
-<th align="center">State ANSI</th>
-<th align="center">Ag District</th>
-<th align="left">Ag District Code</th>
-<th align="center">County</th>
-<th align="center">County ANSI</th>
-<th align="left">Zip Code</th>
-<th align="center">Region</th>
-<th align="left">watershed_code</th>
+<th align="left">Program</th>
+<th align="right">Year</th>
+<th align="left">Period</th>
+<th align="left">WeekEnding</th>
+<th align="left">GeoLevel</th>
+<th align="left">State</th>
+<th align="right">StateANSI</th>
+<th align="left">AGDistrict</th>
+<th align="right">AGDistrictCode</th>
+<th align="left">County</th>
+<th align="right">CountyANSI</th>
+<th align="left">ZipCode</th>
+<th align="left">Region</th>
+<th align="right">WatershedCode</th>
 <th align="left">Watershed</th>
 <th align="left">Commodity</th>
-<th align="center">Data Item</th>
-<th align="center">Domain</th>
-<th align="center">Domain Category</th>
-<th align="center">Value</th>
-<th align="center">CV (%)</th>
+<th align="left">DataItem</th>
+<th align="left">Domain</th>
+<th align="left">DomainCategory</th>
+<th align="left">Value</th>
+<th align="left">CV</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left"></td>
-<td align="center">CENSUS:197</td>
-<td align="center">Min. :2012</td>
-<td align="center">YEAR:197</td>
-<td align="left">Mode:logical</td>
-<td align="center">COUNTY:197</td>
-<td align="center">CALIFORNIA:197</td>
-<td align="center">Min. :6</td>
-<td align="center">CENTRAL COAST :47</td>
-<td align="left">Min. :10.00</td>
-<td align="center">ALAMEDA : 4</td>
-<td align="center">Min. : 1.00</td>
-<td align="left">Mode:logical</td>
-<td align="center">Mode:logical</td>
-<td align="left">Min. :0</td>
-<td align="left">Mode:logical</td>
-<td align="left">HONEY:197</td>
-<td align="center">HONEY - OPERATIONS WITH PRODUCTION:56</td>
-<td align="center">TOTAL:197</td>
-<td align="center">NOT SPECIFIED:197</td>
-<td align="center">2 : 10</td>
-<td align="center">Min. :16.10</td>
+<td align="left">CENSUS</td>
+<td align="right">2012</td>
+<td align="left">YEAR</td>
+<td align="left">NA</td>
+<td align="left">COUNTY</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">BLACK BELT</td>
+<td align="right">40</td>
+<td align="left">AUTAUGA</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">0</td>
+<td align="left">NA</td>
+<td align="left">CHEMICAL TOTALS</td>
+<td align="left">CHEMICAL TOTALS - EXPENSE, MEASURED IN $</td>
+<td align="left">TOTAL</td>
+<td align="left">NOT SPECIFIED</td>
+<td align="left">1,250,000</td>
+<td align="left">23.3</td>
 </tr>
 <tr class="even">
-<td align="left"></td>
-<td align="center">NA</td>
-<td align="center">1st Qu.:2012</td>
-<td align="center">NA</td>
-<td align="left">NA’s:197</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">1st Qu.:6</td>
-<td align="center">SIERRA MOUNTAINS :33</td>
-<td align="left">1st Qu.:40.00</td>
-<td align="center">AMADOR : 4</td>
-<td align="center">1st Qu.: 29.00</td>
-<td align="left">NA’s:197</td>
-<td align="center">NA’s:197</td>
-<td align="left">1st Qu.:0</td>
-<td align="left">NA’s:197</td>
+<td align="left">CENSUS</td>
+<td align="right">2012</td>
+<td align="left">YEAR</td>
 <td align="left">NA</td>
-<td align="center">HONEY - OPERATIONS WITH SALES :55</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">1 : 9</td>
-<td align="center">1st Qu.:18.20</td>
+<td align="left">COUNTY</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">BLACK BELT</td>
+<td align="right">40</td>
+<td align="left">AUTAUGA</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">0</td>
+<td align="left">NA</td>
+<td align="left">CHEMICAL TOTALS</td>
+<td align="left">CHEMICAL TOTALS - OPERATIONS WITH EXPENSE</td>
+<td align="left">TOTAL</td>
+<td align="left">NOT SPECIFIED</td>
+<td align="left">192</td>
+<td align="left">7.2</td>
 </tr>
 <tr class="odd">
-<td align="left"></td>
-<td align="center">NA</td>
-<td align="center">Median :2012</td>
-<td align="center">NA</td>
+<td align="left">CENSUS</td>
+<td align="right">2012</td>
+<td align="left">YEAR</td>
 <td align="left">NA</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">Median :6</td>
-<td align="center">SAN JOAQUIN VALLEY :32</td>
-<td align="left">Median :50.00</td>
-<td align="center">BUTTE : 4</td>
-<td align="center">Median : 59.00</td>
-<td align="left">NA</td>
-<td align="center">NA</td>
-<td align="left">Median :0</td>
+<td align="left">COUNTY</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">BLACK BELT</td>
+<td align="right">40</td>
+<td align="left">AUTAUGA</td>
+<td align="right">1</td>
 <td align="left">NA</td>
 <td align="left">NA</td>
-<td align="center">HONEY - PRODUCTION, MEASURED IN LB:44</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">9 : 8</td>
-<td align="center">Median :23.80</td>
+<td align="right">0</td>
+<td align="left">NA</td>
+<td align="left">FERTILIZER TOTALS</td>
+<td align="left">FERTILIZER TOTALS, INCL LIME &amp; SOIL CONDITIONERS - EXPENSE, MEASURED IN $</td>
+<td align="left">TOTAL</td>
+<td align="left">NOT SPECIFIED</td>
+<td align="left">2,237,000</td>
+<td align="left">17.3</td>
 </tr>
 <tr class="even">
-<td align="left"></td>
-<td align="center">NA</td>
-<td align="center">Mean :2012</td>
-<td align="center">NA</td>
+<td align="left">CENSUS</td>
+<td align="right">2012</td>
+<td align="left">YEAR</td>
 <td align="left">NA</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">Mean :6</td>
-<td align="center">SACRAMENTO VALLEY :31</td>
-<td align="left">Mean :50.16</td>
-<td align="center">CALAVERAS : 4</td>
-<td align="center">Mean : 59.23</td>
-<td align="left">NA</td>
-<td align="center">NA</td>
-<td align="left">Mean :0</td>
+<td align="left">COUNTY</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">BLACK BELT</td>
+<td align="right">40</td>
+<td align="left">AUTAUGA</td>
+<td align="right">1</td>
 <td align="left">NA</td>
 <td align="left">NA</td>
-<td align="center">HONEY - SALES, MEASURED IN $ :42</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">13 : 6</td>
-<td align="center">Mean :22.42</td>
+<td align="right">0</td>
+<td align="left">NA</td>
+<td align="left">FERTILIZER TOTALS</td>
+<td align="left">FERTILIZER TOTALS, INCL LIME &amp; SOIL CONDITIONERS - OPERATIONS WITH EXPENSE</td>
+<td align="left">TOTAL</td>
+<td align="left">NOT SPECIFIED</td>
+<td align="left">221</td>
+<td align="left">6.5</td>
 </tr>
 <tr class="odd">
-<td align="left"></td>
-<td align="center">NA</td>
-<td align="center">3rd Qu.:2012</td>
-<td align="center">NA</td>
+<td align="left">CENSUS</td>
+<td align="right">2012</td>
+<td align="left">YEAR</td>
 <td align="left">NA</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">3rd Qu.:6</td>
-<td align="center">SOUTHERN CALIFORNIA:30</td>
-<td align="left">3rd Qu.:60.00</td>
-<td align="center">CONTRA COSTA: 4</td>
-<td align="center">3rd Qu.: 89.00</td>
-<td align="left">NA</td>
-<td align="center">NA</td>
-<td align="left">3rd Qu.:0</td>
+<td align="left">COUNTY</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">BLACK BELT</td>
+<td align="right">40</td>
+<td align="left">BULLOCK</td>
+<td align="right">11</td>
 <td align="left">NA</td>
 <td align="left">NA</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">18 : 6</td>
-<td align="center">3rd Qu.:29.20</td>
+<td align="right">0</td>
+<td align="left">NA</td>
+<td align="left">CHEMICAL TOTALS</td>
+<td align="left">CHEMICAL TOTALS - EXPENSE, MEASURED IN $</td>
+<td align="left">TOTAL</td>
+<td align="left">NOT SPECIFIED</td>
+<td align="left">861,000</td>
+<td align="left">23.3</td>
 </tr>
 <tr class="even">
-<td align="left"></td>
-<td align="center">NA</td>
-<td align="center">Max. :2012</td>
-<td align="center">NA</td>
+<td align="left">CENSUS</td>
+<td align="right">2012</td>
+<td align="left">YEAR</td>
 <td align="left">NA</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">Max. :6</td>
-<td align="center">SISKIYOU-SHASTA :12</td>
-<td align="left">Max. :80.00</td>
-<td align="center">EL DORADO : 4</td>
-<td align="center">Max. :115.00</td>
-<td align="left">NA</td>
-<td align="center">NA</td>
-<td align="left">Max. :0</td>
+<td align="left">COUNTY</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">BLACK BELT</td>
+<td align="right">40</td>
+<td align="left">BULLOCK</td>
+<td align="right">11</td>
 <td align="left">NA</td>
 <td align="left">NA</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">3 : 6</td>
-<td align="center">Max. :29.20</td>
-</tr>
-<tr class="odd">
-<td align="left"></td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
+<td align="right">0</td>
 <td align="left">NA</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">(Other) :12</td>
-<td align="left">NA</td>
-<td align="center">(Other) :173</td>
-<td align="center">NA</td>
-<td align="left">NA</td>
-<td align="center">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">NA</td>
-<td align="center">(Other):152</td>
-<td align="center">NA</td>
+<td align="left">CHEMICAL TOTALS</td>
+<td align="left">CHEMICAL TOTALS - OPERATIONS WITH EXPENSE</td>
+<td align="left">TOTAL</td>
+<td align="left">NOT SPECIFIED</td>
+<td align="left">102</td>
+<td align="left">7.2</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#load the data</span>
-<span class="co">#honey_county &lt;- (sqlQuery(con, &quot;select * from honeycounty&quot;))</span>
-<span class="co">#honey_state &lt;- (sqlQuery(con, &quot;select * from honeystate&quot;))</span>
-
-<span class="co">#kable(head(honey_county))</span>
-<span class="co">#kable(head(honey_state))</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">kable</span>(<span class="kw">head</span>(honey_state))</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Program</th>
+<th align="right">Year</th>
+<th align="left">Period</th>
+<th align="left">WeekEnding</th>
+<th align="left">GeoLevel</th>
+<th align="left">State</th>
+<th align="right">StateANSI</th>
+<th align="left">AGDistrict</th>
+<th align="left">AGDistrictCode</th>
+<th align="left">County</th>
+<th align="left">CountyANSI</th>
+<th align="left">ZipCode</th>
+<th align="left">Region</th>
+<th align="right">WatershedCode</th>
+<th align="left">Watershed</th>
+<th align="left">Commodity</th>
+<th align="left">DataItem</th>
+<th align="left">Domain</th>
+<th align="left">DomainCategory</th>
+<th align="left">Value</th>
+<th align="left">CV</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">CENSUS</td>
+<td align="right">2014</td>
+<td align="left">YEAR</td>
+<td align="left">NA</td>
+<td align="left">STATE</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">0</td>
+<td align="left">NA</td>
+<td align="left">HORTICULTURE TOTALS</td>
+<td align="left">HORTICULTURE TOTALS - OPERATIONS WITH SALES</td>
+<td align="left">SALES OF HORTICULTURE</td>
+<td align="left">SALES OF HORTICULTURE: (1,000,000 TO 2,499,999 $)</td>
+<td align="left">28</td>
+<td align="left">7.6</td>
+</tr>
+<tr class="even">
+<td align="left">CENSUS</td>
+<td align="right">2014</td>
+<td align="left">YEAR</td>
+<td align="left">NA</td>
+<td align="left">STATE</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">0</td>
+<td align="left">NA</td>
+<td align="left">HORTICULTURE TOTALS</td>
+<td align="left">HORTICULTURE TOTALS - OPERATIONS WITH SALES</td>
+<td align="left">SALES OF HORTICULTURE</td>
+<td align="left">SALES OF HORTICULTURE: (10,000 TO 19,999 $)</td>
+<td align="left">33</td>
+<td align="left">25.2</td>
+</tr>
+<tr class="odd">
+<td align="left">CENSUS</td>
+<td align="right">2014</td>
+<td align="left">YEAR</td>
+<td align="left">NA</td>
+<td align="left">STATE</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">0</td>
+<td align="left">NA</td>
+<td align="left">HORTICULTURE TOTALS</td>
+<td align="left">HORTICULTURE TOTALS - OPERATIONS WITH SALES</td>
+<td align="left">SALES OF HORTICULTURE</td>
+<td align="left">SALES OF HORTICULTURE: (100,000 TO 249,999 $)</td>
+<td align="left">44</td>
+<td align="left">31.4</td>
+</tr>
+<tr class="even">
+<td align="left">CENSUS</td>
+<td align="right">2014</td>
+<td align="left">YEAR</td>
+<td align="left">NA</td>
+<td align="left">STATE</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">0</td>
+<td align="left">NA</td>
+<td align="left">HORTICULTURE TOTALS</td>
+<td align="left">HORTICULTURE TOTALS - OPERATIONS WITH SALES</td>
+<td align="left">SALES OF HORTICULTURE</td>
+<td align="left">SALES OF HORTICULTURE: (2,500,000 OR MORE $)</td>
+<td align="left">19</td>
+<td align="left">(L)</td>
+</tr>
+<tr class="odd">
+<td align="left">CENSUS</td>
+<td align="right">2014</td>
+<td align="left">YEAR</td>
+<td align="left">NA</td>
+<td align="left">STATE</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">0</td>
+<td align="left">NA</td>
+<td align="left">HORTICULTURE TOTALS</td>
+<td align="left">HORTICULTURE TOTALS - OPERATIONS WITH SALES</td>
+<td align="left">SALES OF HORTICULTURE</td>
+<td align="left">SALES OF HORTICULTURE: (20,000 TO 24,999 $)</td>
+<td align="left">12</td>
+<td align="left">52.4</td>
+</tr>
+<tr class="even">
+<td align="left">CENSUS</td>
+<td align="right">2014</td>
+<td align="left">YEAR</td>
+<td align="left">NA</td>
+<td align="left">STATE</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="right">0</td>
+<td align="left">NA</td>
+<td align="left">HORTICULTURE TOTALS</td>
+<td align="left">HORTICULTURE TOTALS - OPERATIONS WITH SALES</td>
+<td align="left">SALES OF HORTICULTURE</td>
+<td align="left">SALES OF HORTICULTURE: (25,000 TO 39,999 $)</td>
+<td align="left">32</td>
+<td align="left">51.3</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="data-on-bee-colonies" class="section level4">
 <h4>Data on Bee Colonies</h4>
-<p>To check if number of bees are going up or down?</p>
+<p>To verify if number of bees are going up or down</p>
 </div>
+<div id="data-on-county-ids" class="section level4">
+<h4>Data on County IDs</h4>
+<p>Since the datasets containing county level information use the county name as the identifier, we need to add a county number to it for our maps.</p>
+</div>
+<div id="closing-the-mysql-connection" class="section level4">
+<h4>Closing the MySQL Connection:</h4>
+<p>Since we’ve finished with our MySQL connection, it should always be closed out to maintain data integrity.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">odbcClose</span>(con)</code></pre></div>
+</div>
+</div>
+<div id="data-cleaning" class="section level3">
+<h3>Data Cleaning</h3>
+</div>
+<div id="data-tidying" class="section level3">
+<h3>Data Tidying</h3>
+</div>
+<div id="data-restructuring" class="section level3">
+<h3>Data Restructuring</h3>
 </div>
 </div>
 <div id="part-3---exploratory-data-analysis" class="section level2">
 <h2>Part 3 - Exploratory data analysis:</h2>
+<div id="map" class="section level3">
+<h3>Map</h3>
+</div>
 </div>
 <div id="part-4---inference" class="section level2">
 <h2>Part 4 - Inference:</h2>

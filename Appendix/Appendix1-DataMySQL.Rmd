@@ -37,7 +37,7 @@ state4 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkT
 state5 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USAHorticultureCensus_State_allyears.csv", header = TRUE)
 ```
 
-However, since the data is now in MySQL we query for the following table names:
+However, since the data is now in MySQL we query it for the following table names:
 
 - cahoneycensus_county_2012
 
@@ -59,6 +59,11 @@ However, since the data is now in MySQL we query for the following table names:
 
 - USAHorticultureCensus_State_allyears.csv
 
+And merge all of those datasets into two simple tables (views technically, so that we do not contaminate the original data) titled:
+
+- honey_county: which lists all of the county level statistics
+
+- honey_state: which lists all of the state level statistics
 
 #### Data on Bee Colonies
 
