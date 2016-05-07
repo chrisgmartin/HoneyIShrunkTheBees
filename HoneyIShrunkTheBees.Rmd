@@ -56,7 +56,7 @@ Many/most/all beekeepers harvest honey from their bees as a source of income, bu
 
 ## Part 2 - Data:
 
-Here I outline the data import process, review the data, clean it, tidy it, and structure it to suit our needs. Please see the [first appendix](https://github.com/chrisgmartin/HoneyIShrunkTheBees/tree/master/Appendix) at the end for more details on this process. The MySQL queries can also be found there.
+Here I outline the data import process, review the data, clean it, tidy it, and structure it to suit our needs. Please see [Appendix 1: Data Merging in MySQL](https://github.com/chrisgmartin/HoneyIShrunkTheBees/tree/master/Appendix) at the end for more details on this process. The MySQL queries can also be found there.
 
 ### Data Import:
 
@@ -74,7 +74,7 @@ sqlQuery(con, "use hisp")
 
 #### National Agriculture Statistics Service:
 
-The first set of data we gathered came from the [National Agriculture Statistics Service website](https://quickstats.nass.usda.gov/) (NASS), which houses a large amount of data related to United States Agriculture. The website stores census and survey data on a number of subjects (the main categories are animals, products, crops, demographics, economics, and environment) across a number of geographic levels (national, state, county, and zip code) for a number of years. The data can be access by the website UI allowing the user to select each subject, geographic level, and year which can then be exported into a .CSV file, or the entire database can be downloaded as a text file after extracting the database .GZ. For our purposes, it was simple enough to query the database using the website rather than have to deal with the large and cumbersome dataset. The queries were then saved into seperate .CSV files, uploaded to GitHub, imported into MySQL, and prepped to be ready to import into R:
+The first set of data we gathered came from the [National Agriculture Statistics Service website](https://quickstats.nass.usda.gov/) (NASS), which houses a large amount of data related to United States Agriculture. The website stores census and survey data on a number of subjects (the main categories are animals, products, crops, demographics, economics, and environment) across a number of geographic levels (national, state, county, and zip code) for a number of years. The data can be access by the website UI allowing the user to select each subject, geographic level, and year which can then be exported into a .CSV file, or the entire database can be downloaded as a text file after extracting the database .GZ. For our purposes, it was simple enough to query the database using the website rather than have to deal with the large and cumbersome dataset. The queries were then saved into seperate .CSV files, uploaded to GitHub, [imported into MySQL, and prepped](https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/HoneyIShrunkTheBees.sql) to be ready to import into R:
 
 ```{r}
 #load the data
@@ -85,6 +85,7 @@ kable(head(honey_county, 3))
 kable(head(honey_state, 3))
 
 ```
+
 
 #### American National Standards Institute (ANSI) Codes
 
@@ -122,7 +123,7 @@ odbcClose(con)
 
 
 
-### Data Exploration Part 1: County Level
+### Data Exploration
 
 Since we have the data set we can explore what's in it before we decide where and how to clean it. Let's start with the column for data descriptions: Data Item
 
@@ -134,7 +135,7 @@ nrow(honey_state)
 
 ```
 
-There are a lot more data items (87 more to be exact) in the state set than in the county set, yet the county set has more variables/row (33,548). This could mean a number of things but it certainly means that the starting point will be counties.
+There are a lot more data items (87 more to be exact) in the state set than in the county set, yet the county set has more variables/row (33,548). This could mean a number of things but it certainly means that the starting point in the analysis will be counties.
 
 ```{r}
 unique(honey_county$DataItem)
@@ -147,69 +148,63 @@ We have a number of items here to sort through, but need to clean what can be cl
 Let's pull in only the columns we need:
 
 ```{r}
-honey_county2 <- honey_county[c(1,,5,6,7,10,11,16,17,20)]
+honey_county2 <- honey_county[c(1,5,6,7,10,11,16,17,20)]
+kable(head(honey_county2))
+honey_state2 <- honey_state[c(1,5,6,7,10,11,16,17,20)]
+kable(head(honey_state2))
 ```
 
-Futher exploration of the data found several characters in the Value column, we'll have to fix that but need to first understand why the characters are there. Lucky for us, the NASS website also includes a [glossary](https://quickstats.nass.usda.gov/src/glossary.pdf) which is more than handy in a situation like this. The values we see here are: (D) and (Z), which mean "Withheald to avoid discolsing data for individual operations" and "Less than half of the rounding unit" respectively. As I understand it (Z) is essentially a (NULL) value and can be simply replaced with a 0 but (D) is tricky since it could be 0 or it could be extremely large. There are a number of things we could do to fix them: replace them with 0 (positively skewing our results), use a total average, use a weighted average based on a metric, average based on another metric, or make an assumption. What I think from my gut instinct is that using an average based on a metric would be the best way to do this as it is less prone to futher skewing our data in an extreme way. The metric that I think will be the most effective is an average for the state for the specific data item. Let's try to put that together:
+Futher exploration of the data found several characters in the Value column, we'll have to fix that but need to first understand why the characters are there. Lucky for us, the NASS website also includes a [glossary](https://quickstats.nass.usda.gov/src/glossary.pdf) which is more than handy in a situation like this. The values we see here are: (D) and (Z), which mean "Withheald to avoid discolsing data for individual operations" and "Less than half of the rounding unit" respectively. As I understand it (Z) is essentially a (NULL) value and can be simply replaced with a 0 but (D) is tricky since it could be 0 or it could be extremely large. There are a number of things we could do to fix them: replace them with 0 (positively skewing our results), use a total average (skewing our results in a strange way), use a weighted average based on a certain metric (skewing our data), average based on another metric (also skewing our data), or make an assumption (which will most likely skew our data). What I think from my gut instinct is that using an average based on a metric would be the best way to do this as it is less prone to futher skewing our data in any extreme cases. The metric that I think will be the most effective is an average for the state for the specific data item; an alternative at the county level would be to use average by state/county/data item, but having tried that unsuccessfully it led to creating too many null values due to some statistics not being available at that level. Thankfully, SQL makes doing just that really simple (see the first appendix--even though I'll include the code below for some of the R work). Let's try to put that together:
 
 
 ```{r}
 #Replace (Z)'s with 0 value
-honey_county2$Value[honey_county2$Value == " (Z)"] <- as.integer(0)
-
-#Set (D)'s to an easy to find value
-honey_county2$Value[honey_county2$Value == " (D)"] <- as.integer(0)
+#honey_county2$Value[honey_county2$Value == " (Z)"] <- as.integer(0)
+#honey_state2$Value[honey_state2$Value == " (Z)"] <- as.integer(0)
 
 #Remove comma's from digits
-library(stringr)
-honey_county2$Value <- str_replace_all(honey_county2$Value, "[:punct:]", "")
+#library(stringr)
+#honey_county2$Value <- str_replace_all(honey_county2$Value, "[:punct:]", "")
+#honey_state2$Value <- str_replace_all(honey_state2$Value, "[:punct:]", "")
 
+#check to see if it worked correctly
+#honey_county2$Value[honey_county2$Value == " (Z)"]
+#honey_county2$Value[honey_county2$Value == " (D)"]
+#honey_state2$Value[honey_county2$Value == " (Z)"]
+#honey_state2$Value[honey_county2$Value == " (D)"]
 
-
-
-
-#Change Values into Int
-honey_county2$Value <- as.integer(honey_county2$Value)
 #Remove NA's to zero
-honey_county2$Value[is.na(honey_county2$Value)] <- as.integer(0)
-
-
-#Calculate the average of each DataItem for each State
-library(dplyr)
-#Start by sorting for ease
-dataitem_county <- group_by(honey_county2, DataItem, State)
-#Find the sum for each state and DataItem
-(per_state_tot <- summarise(dataitem_county, Value = sum(Value)))
-#Find the sum for each DataItem in totality
-(per_nation_tot <- summarise(per_state, Value = sum(Value)))
-#Find the average for each state and DataItem
-(per_state_avg <- summarise(dataitem_county, Value = mean(Value)))
-#Find the average for each DataItem in totality
-(per_nation_avg <- summarise(per_state, Value = sum(Value)))
+#honey_county2$Value[is.na(honey_county2$Value)] <- as.integer(0)
 ```
 
+*Important note*: R currently cannot properly store integers greater than 2,147,483,647 (I was getting an error which [pointed me to this link](http://stackoverflow.com/questions/14589354/struggling-with-integers-maximum-integer-size) ). As a result, I have fixed all values greater than 2,147,483,647 to be equal to 2,147,483,647 in the MySQL query. This will absolutely lead to errors in our data, and in a real-life situation this would never be a suggestion to recommened, ever. As my purpose is more about the journey than the destination (ahem), I this is a necessary evil I had to choose, we may not even be affected by it in the end. But in real-life, we will always be affected by the assumptions we make.
 
-**************
-**************
-Need to fix NA values
-Need to set "D" values as averages
+```{r}
+#Change Values into Int
+honey_county2$Value <- as.integer(honey_county2$Value)
+honey_state2$Value <- as.integer(honey_state2$Value)
 
-
-*************
-*************
-
-
+#Remove NA's to zero
+#NA's are from null values from the MySQL Query
+#Where (D) values did not have an average to calculate
+honey_county2$Value[is.na(honey_county2$Value)] <- as.integer(0)
+honey_state2$Value[is.na(honey_state2$Value)] <- as.integer(0)
+```
 
 ### Data Tidying
 
+With the data loaded, and more-or-less cleaned, for viewing purposes it should be tidy'd a bit.
 
+```{r}
+library(dplyr)
+honey_county2 <- honey_county2 %>% 
+  arrange(., DataItem) %>% 
+  arrange(., State)
 
-
-
-
-
-
-
+honey_state2 <- honey_county2 %>% 
+  arrange(., DataItem) %>% 
+  arrange(., State)
+```
 
 ### Data Restructuring
 
