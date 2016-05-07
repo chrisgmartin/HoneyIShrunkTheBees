@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS USAChemicalandFertilizerTotals_State_allyears;
 DROP TABLE IF EXISTS USACropTotalsCensus_State_allyears;
 DROP TABLE IF EXISTS USAHoneyCensus_State_allyears;
 DROP TABLE IF EXISTS USAHorticultureCensus_State_allyears;
+DROP TABLE IF EXISTS FIPS;
 DROP VIEW IF EXISTS honey_state;
 DROP VIEW IF EXISTS honey_county;
 DROP VIEW IF EXISTS honey_state_avg;
@@ -484,6 +485,17 @@ WHERE concat('', Value * 1) = Value;
 
 
 
+/* Add State abbreviations
+FROM STATE TABLE OUTSIDE OF THIS QUERY */
+UPDATE honey_county C, state F
+SET C.State = F.abbreviation
+WHERE C.STATE = F.name;
+
+UPDATE honey_state S, state F
+SET S.State = F.abbreviation
+WHERE S.STATE = F.name;
+
+
 /* export results with headers */
 (SELECT 'Program', 'Year', 'Period', 'WeekEnding', 'GeoLevel', 'State', 'StateANSI', 'AGDistrict', 'AGDistrictCode', 'County', 'CountyANSI', 'ZipCode', 'Region', 'WatershedCode', 'Watershed', 'Commodity', 'DataItem', 'Domain', 'DomainCategory', 'Value', 'CV')
 UNION
@@ -499,6 +511,33 @@ UNION
 (SELECT Program, Year, Period, WeekEnding, GeoLevel, State, StateANSI, AGDistrict, AGDistrictCode, County, CountyANSI, ZipCode, Region, WatershedCode, Watershed, Commodity, DataItem, Domain, DomainCategory, Value, CV
 FROM honey_county
 INTO OUTFILE 'C:/ProgramData/MySQL/MySQL Server 5.7/Uploads/honey_county.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n');
+
+
+
+/* Import and Export FIPS County Codes */
+CREATE TABLE FIPS
+(
+State varchar(50) NULL,
+StateFP int,
+CountyFP int,
+County varchar(50) NULL,
+ClassFP varchar(50) NULL
+);
+
+LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 5.7/Uploads/national_county.txt' 
+INTO TABLE FIPS
+FIELDS TERMINATED BY ',' 
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n';
+
+(SELECT 'State', 'StateFP', 'CountyFP', 'County', 'ClassFP')
+UNION
+(SELECT State, StateFP, CountyFP, County, ClassFP
+FROM FIPS
+INTO OUTFILE 'C:/ProgramData/MySQL/MySQL Server 5.7/Uploads/FIPS.csv'
 FIELDS TERMINATED BY ','
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n');

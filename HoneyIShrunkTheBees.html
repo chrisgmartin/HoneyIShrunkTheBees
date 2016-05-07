@@ -249,7 +249,7 @@ div.tocify {
 </div>
 <div id="part-2---data" class="section level2">
 <h2>Part 2 - Data:</h2>
-<p>Here I outline the data import process, review the data, clean it, tidy it, and structure it to suit our needs. Please see the <a href="add%20link%20to%20the%20first%20appendix%20in%20GitHub">first appendix</a> at the end for more details on this process. The MySQL queries can also be found there.</p>
+<p>Here I outline the data import process, review the data, clean it, tidy it, and structure it to suit our needs. Please see <a href="https://github.com/chrisgmartin/HoneyIShrunkTheBees/tree/master/Appendix">Appendix 1: Data Merging in MySQL</a> at the end for more details on this process. The MySQL queries can also be found there.</p>
 <div id="data-import" class="section level3">
 <h3>Data Import:</h3>
 <p>What is likely to be the most important part of any analysis, we need data to analyse. Fortunately for our project, there is a plethora of data freely available from a variety of sources.</p>
@@ -260,12 +260,12 @@ con &lt;-<span class="st"> </span><span class="kw">odbcConnect</span>(<span clas
 <pre><code>## [1] &quot;No Data&quot;</code></pre>
 <div id="national-agriculture-statistics-service" class="section level4">
 <h4>National Agriculture Statistics Service:</h4>
-<p>The first set of data we gathered came from the <a href="https://quickstats.nass.usda.gov/">National Agriculture Statistics Service website</a>, which houses a large amount of data related to United States Agriculture. The website stores census and survey data on a number of subjects (the main categories are animals, products, crops, demographics, economics, and environment) across a number of geographic levels (national, state, county, and zip code) for a number of years. The data can be access by the website UI allowing the user to select each subject, geographic level, and year which can then be exported into a .CSV file, or the entire database can be downloaded as a text file after extracting the database .GZ. For our purposes, it was simple enough to query the database using the website rather than have to deal with the large and cumbersome dataset. The queries were then saved into seperate .CSV files, uploaded to GitHub, imported into MySQL, and prepped to be ready to import into R:</p>
+<p>The first set of data we gathered came from the <a href="https://quickstats.nass.usda.gov/">National Agriculture Statistics Service website</a> (NASS), which houses a large amount of data related to United States Agriculture. The website stores census and survey data on a number of subjects (the main categories are animals, products, crops, demographics, economics, and environment) across a number of geographic levels (national, state, county, and zip code) for a number of years. The data can be access by the website UI allowing the user to select each subject, geographic level, and year which can then be exported into a .CSV file, or the entire database can be downloaded as a text file after extracting the database .GZ. For our purposes, it was simple enough to query the database using the website rather than have to deal with the large and cumbersome dataset. The queries were then saved into seperate .CSV files, uploaded to GitHub, <a href="https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/HoneyIShrunkTheBees.sql">imported into MySQL, and prepped</a> to be ready to import into R:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#load the data</span>
 honey_county &lt;-<span class="st"> </span>(<span class="kw">sqlQuery</span>(con, <span class="st">&quot;select * from honey_county&quot;</span>, <span class="dt">stringsAsFactors=</span><span class="ot">FALSE</span>))
 honey_state &lt;-<span class="st"> </span>(<span class="kw">sqlQuery</span>(con, <span class="st">&quot;select * from honey_state&quot;</span>, <span class="dt">stringsAsFactors=</span><span class="ot">FALSE</span>))
 
-<span class="kw">kable</span>(<span class="kw">head</span>(honey_county))</code></pre></div>
+<span class="kw">kable</span>(<span class="kw">head</span>(honey_county, <span class="dv">3</span>))</code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -288,7 +288,7 @@ honey_state &lt;-<span class="st"> </span>(<span class="kw">sqlQuery</span>(con,
 <th align="left">DataItem</th>
 <th align="left">Domain</th>
 <th align="left">DomainCategory</th>
-<th align="left">Value</th>
+<th align="right">Value</th>
 <th align="left">CV</th>
 </tr>
 </thead>
@@ -313,7 +313,7 @@ honey_state &lt;-<span class="st"> </span>(<span class="kw">sqlQuery</span>(con,
 <td align="left">CHEMICAL TOTALS - EXPENSE, MEASURED IN $</td>
 <td align="left">TOTAL</td>
 <td align="left">NOT SPECIFIED</td>
-<td align="left">1,250,000</td>
+<td align="right">1250000</td>
 <td align="left">23.3</td>
 </tr>
 <tr class="even">
@@ -336,7 +336,7 @@ honey_state &lt;-<span class="st"> </span>(<span class="kw">sqlQuery</span>(con,
 <td align="left">CHEMICAL TOTALS - OPERATIONS WITH EXPENSE</td>
 <td align="left">TOTAL</td>
 <td align="left">NOT SPECIFIED</td>
-<td align="left">192</td>
+<td align="right">192</td>
 <td align="left">7.2</td>
 </tr>
 <tr class="odd">
@@ -359,81 +359,12 @@ honey_state &lt;-<span class="st"> </span>(<span class="kw">sqlQuery</span>(con,
 <td align="left">FERTILIZER TOTALS, INCL LIME &amp; SOIL CONDITIONERS - EXPENSE, MEASURED IN $</td>
 <td align="left">TOTAL</td>
 <td align="left">NOT SPECIFIED</td>
-<td align="left">2,237,000</td>
+<td align="right">2237000</td>
 <td align="left">17.3</td>
-</tr>
-<tr class="even">
-<td align="left">CENSUS</td>
-<td align="right">2012</td>
-<td align="left">YEAR</td>
-<td align="left">NA</td>
-<td align="left">COUNTY</td>
-<td align="left">ALABAMA</td>
-<td align="right">1</td>
-<td align="left">BLACK BELT</td>
-<td align="right">40</td>
-<td align="left">AUTAUGA</td>
-<td align="right">1</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="right">0</td>
-<td align="left">NA</td>
-<td align="left">FERTILIZER TOTALS</td>
-<td align="left">FERTILIZER TOTALS, INCL LIME &amp; SOIL CONDITIONERS - OPERATIONS WITH EXPENSE</td>
-<td align="left">TOTAL</td>
-<td align="left">NOT SPECIFIED</td>
-<td align="left">221</td>
-<td align="left">6.5</td>
-</tr>
-<tr class="odd">
-<td align="left">CENSUS</td>
-<td align="right">2012</td>
-<td align="left">YEAR</td>
-<td align="left">NA</td>
-<td align="left">COUNTY</td>
-<td align="left">ALABAMA</td>
-<td align="right">1</td>
-<td align="left">BLACK BELT</td>
-<td align="right">40</td>
-<td align="left">BULLOCK</td>
-<td align="right">11</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="right">0</td>
-<td align="left">NA</td>
-<td align="left">CHEMICAL TOTALS</td>
-<td align="left">CHEMICAL TOTALS - EXPENSE, MEASURED IN $</td>
-<td align="left">TOTAL</td>
-<td align="left">NOT SPECIFIED</td>
-<td align="left">861,000</td>
-<td align="left">23.3</td>
-</tr>
-<tr class="even">
-<td align="left">CENSUS</td>
-<td align="right">2012</td>
-<td align="left">YEAR</td>
-<td align="left">NA</td>
-<td align="left">COUNTY</td>
-<td align="left">ALABAMA</td>
-<td align="right">1</td>
-<td align="left">BLACK BELT</td>
-<td align="right">40</td>
-<td align="left">BULLOCK</td>
-<td align="right">11</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="right">0</td>
-<td align="left">NA</td>
-<td align="left">CHEMICAL TOTALS</td>
-<td align="left">CHEMICAL TOTALS - OPERATIONS WITH EXPENSE</td>
-<td align="left">TOTAL</td>
-<td align="left">NOT SPECIFIED</td>
-<td align="left">102</td>
-<td align="left">7.2</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">kable</span>(<span class="kw">head</span>(honey_state))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">kable</span>(<span class="kw">head</span>(honey_state, <span class="dv">3</span>))</code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -456,7 +387,7 @@ honey_state &lt;-<span class="st"> </span>(<span class="kw">sqlQuery</span>(con,
 <th align="left">DataItem</th>
 <th align="left">Domain</th>
 <th align="left">DomainCategory</th>
-<th align="left">Value</th>
+<th align="right">Value</th>
 <th align="left">CV</th>
 </tr>
 </thead>
@@ -481,7 +412,7 @@ honey_state &lt;-<span class="st"> </span>(<span class="kw">sqlQuery</span>(con,
 <td align="left">HORTICULTURE TOTALS - OPERATIONS WITH SALES</td>
 <td align="left">SALES OF HORTICULTURE</td>
 <td align="left">SALES OF HORTICULTURE: (1,000,000 TO 2,499,999 $)</td>
-<td align="left">28</td>
+<td align="right">28</td>
 <td align="left">7.6</td>
 </tr>
 <tr class="even">
@@ -504,7 +435,7 @@ honey_state &lt;-<span class="st"> </span>(<span class="kw">sqlQuery</span>(con,
 <td align="left">HORTICULTURE TOTALS - OPERATIONS WITH SALES</td>
 <td align="left">SALES OF HORTICULTURE</td>
 <td align="left">SALES OF HORTICULTURE: (10,000 TO 19,999 $)</td>
-<td align="left">33</td>
+<td align="right">33</td>
 <td align="left">25.2</td>
 </tr>
 <tr class="odd">
@@ -527,88 +458,20 @@ honey_state &lt;-<span class="st"> </span>(<span class="kw">sqlQuery</span>(con,
 <td align="left">HORTICULTURE TOTALS - OPERATIONS WITH SALES</td>
 <td align="left">SALES OF HORTICULTURE</td>
 <td align="left">SALES OF HORTICULTURE: (100,000 TO 249,999 $)</td>
-<td align="left">44</td>
+<td align="right">44</td>
 <td align="left">31.4</td>
-</tr>
-<tr class="even">
-<td align="left">CENSUS</td>
-<td align="right">2014</td>
-<td align="left">YEAR</td>
-<td align="left">NA</td>
-<td align="left">STATE</td>
-<td align="left">ALABAMA</td>
-<td align="right">1</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="right">0</td>
-<td align="left">NA</td>
-<td align="left">HORTICULTURE TOTALS</td>
-<td align="left">HORTICULTURE TOTALS - OPERATIONS WITH SALES</td>
-<td align="left">SALES OF HORTICULTURE</td>
-<td align="left">SALES OF HORTICULTURE: (2,500,000 OR MORE $)</td>
-<td align="left">19</td>
-<td align="left">(L)</td>
-</tr>
-<tr class="odd">
-<td align="left">CENSUS</td>
-<td align="right">2014</td>
-<td align="left">YEAR</td>
-<td align="left">NA</td>
-<td align="left">STATE</td>
-<td align="left">ALABAMA</td>
-<td align="right">1</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="right">0</td>
-<td align="left">NA</td>
-<td align="left">HORTICULTURE TOTALS</td>
-<td align="left">HORTICULTURE TOTALS - OPERATIONS WITH SALES</td>
-<td align="left">SALES OF HORTICULTURE</td>
-<td align="left">SALES OF HORTICULTURE: (20,000 TO 24,999 $)</td>
-<td align="left">12</td>
-<td align="left">52.4</td>
-</tr>
-<tr class="even">
-<td align="left">CENSUS</td>
-<td align="right">2014</td>
-<td align="left">YEAR</td>
-<td align="left">NA</td>
-<td align="left">STATE</td>
-<td align="left">ALABAMA</td>
-<td align="right">1</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="right">0</td>
-<td align="left">NA</td>
-<td align="left">HORTICULTURE TOTALS</td>
-<td align="left">HORTICULTURE TOTALS - OPERATIONS WITH SALES</td>
-<td align="left">SALES OF HORTICULTURE</td>
-<td align="left">SALES OF HORTICULTURE: (25,000 TO 39,999 $)</td>
-<td align="left">32</td>
-<td align="left">51.3</td>
 </tr>
 </tbody>
 </table>
 </div>
+<div id="american-national-standards-institute-ansi-codes" class="section level4">
+<h4>American National Standards Institute (ANSI) Codes</h4>
+<p>The NASS data sets include a column for ANSI codes at both the state and county level. These ANSI codes can be extremely useful in analyzing our data, especially when it comes to plotting it all on a map. ANSI stands for <a href="https://www.census.gov/geo/reference/ansi.html">American National Standards Institute</a> which are standardized codes used to ensure uniform identification of geography between various agencies. Since September 2008, ANSI has also replaced the use of <a href="https://en.wikipedia.org/wiki/FIPS_county_code">Federial Information Processessing Standard</a> (FIPS) codes and National Institute of Standards and Technology codes (NIST).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#load FIPS code to check if they are the same as ANSI codes at both state and county levels</span></code></pre></div>
+</div>
 <div id="data-on-bee-colonies" class="section level4">
 <h4>Data on Bee Colonies</h4>
 <p>To verify if number of bees are going up or down</p>
-</div>
-<div id="data-on-county-ids" class="section level4">
-<h4>Data on County IDs</h4>
-<p>Since the datasets containing county level information use the county name as the identifier, we need to add a county number to it for our maps.</p>
 </div>
 <div id="closing-the-mysql-connection" class="section level4">
 <h4>Closing the MySQL Connection:</h4>
@@ -616,13 +479,277 @@ honey_state &lt;-<span class="st"> </span>(<span class="kw">sqlQuery</span>(con,
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">odbcClose</span>(con)</code></pre></div>
 </div>
 </div>
+<div id="data-exploration" class="section level3">
+<h3>Data Exploration</h3>
+<p>Since we have the data set we can explore what’s in it before we decide where and how to clean it. Let’s start with the column for data descriptions: Data Item</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">length</span>(<span class="kw">unique</span>(honey_county$DataItem))</code></pre></div>
+<pre><code>## [1] 21</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nrow</span>(honey_county)</code></pre></div>
+<pre><code>## [1] 129054</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">length</span>(<span class="kw">unique</span>(honey_state$DataItem))</code></pre></div>
+<pre><code>## [1] 108</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">nrow</span>(honey_state)</code></pre></div>
+<pre><code>## [1] 95506</code></pre>
+<p>There are a lot more data items (87 more to be exact) in the state set than in the county set, yet the county set has more variables/row (33,548). This could mean a number of things but it certainly means that the starting point in the analysis will be counties.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">unique</span>(honey_county$DataItem)</code></pre></div>
+<pre><code>##  [1] &quot;CHEMICAL TOTALS - EXPENSE, MEASURED IN $&quot;                                                          
+##  [2] &quot;CHEMICAL TOTALS - OPERATIONS WITH EXPENSE&quot;                                                         
+##  [3] &quot;FERTILIZER TOTALS, INCL LIME &amp; SOIL CONDITIONERS - EXPENSE, MEASURED IN $&quot;                         
+##  [4] &quot;FERTILIZER TOTALS, INCL LIME &amp; SOIL CONDITIONERS - OPERATIONS WITH EXPENSE&quot;                        
+##  [5] &quot;CROP TOTALS - OPERATIONS WITH SALES&quot;                                                               
+##  [6] &quot;CROP TOTALS - SALES, MEASURED IN $&quot;                                                                
+##  [7] &quot;CROP TOTALS, ORGANIC - OPERATIONS WITH SALES&quot;                                                      
+##  [8] &quot;CROP TOTALS, ORGANIC - SALES, MEASURED IN $&quot;                                                       
+##  [9] &quot;HONEY - OPERATIONS WITH PRODUCTION&quot;                                                                
+## [10] &quot;HONEY - OPERATIONS WITH SALES&quot;                                                                     
+## [11] &quot;HONEY - PRODUCTION, MEASURED IN LB&quot;                                                                
+## [12] &quot;HONEY - SALES, MEASURED IN $&quot;                                                                      
+## [13] &quot;HONEY, BEE COLONIES - OPERATIONS WITH SALES&quot;                                                       
+## [14] &quot;HONEY, BEE COLONIES - SALES, MEASURED IN COLONIES&quot;                                                 
+## [15] &quot;HORTICULTURE TOTALS, (EXCL CUT TREES &amp; VEGETABLE SEEDS &amp; TRANSPLANTS) - OPERATIONS WITH SALES&quot;     
+## [16] &quot;HORTICULTURE TOTALS, (EXCL CUT TREES &amp; VEGETABLE SEEDS &amp; TRANSPLANTS) - SALES, MEASURED IN $&quot;      
+## [17] &quot;HORTICULTURE TOTALS, (EXCL CUT TREES) - OPERATIONS WITH AREA IN PRODUCTION&quot;                        
+## [18] &quot;HORTICULTURE TOTALS, (EXCL CUT TREES), IN THE OPEN - ACRES IN PRODUCTION&quot;                          
+## [19] &quot;HORTICULTURE TOTALS, (EXCL CUT TREES), IN THE OPEN, IRRIGATED - ACRES IN PRODUCTION&quot;               
+## [20] &quot;HORTICULTURE TOTALS, (EXCL CUT TREES), IN THE OPEN, IRRIGATED - OPERATIONS WITH AREA IN PRODUCTION&quot;
+## [21] &quot;HORTICULTURE TOTALS, (EXCL CUT TREES), UNDER PROTECTION - SQ FT IN PRODUCTION&quot;</code></pre>
+<p>We have a number of items here to sort through, but need to clean what can be cleaned. Other items of note are the columns. There are several that are unnecessary for our purposes. Essentially, the columns we need (or might need) are: Program (column 1), Period (3), GeoLevel (5), State (6), StateANSI (7), County (10), CountyANSI (11), Commodity (16), DataItem (17), and Value (20). The first 10 items are descriptive, while the final column contains our variable. <em>Note</em>: Year (2) has been removed for the time being, as our analysis is more of an estimate rather than a time-series and I believe that having more variables in our analysis will help more for stability than it will bias results.</p>
+</div>
 <div id="data-cleaning" class="section level3">
 <h3>Data Cleaning</h3>
+<p>Let’s pull in only the columns we need:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">honey_county2 &lt;-<span class="st"> </span>honey_county[<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">10</span>,<span class="dv">11</span>,<span class="dv">16</span>,<span class="dv">17</span>,<span class="dv">20</span>)]
+<span class="kw">kable</span>(<span class="kw">head</span>(honey_county2))</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Program</th>
+<th align="left">GeoLevel</th>
+<th align="left">State</th>
+<th align="right">StateANSI</th>
+<th align="left">County</th>
+<th align="right">CountyANSI</th>
+<th align="left">Commodity</th>
+<th align="left">DataItem</th>
+<th align="right">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">CENSUS</td>
+<td align="left">COUNTY</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">AUTAUGA</td>
+<td align="right">1</td>
+<td align="left">CHEMICAL TOTALS</td>
+<td align="left">CHEMICAL TOTALS - EXPENSE, MEASURED IN $</td>
+<td align="right">1250000</td>
+</tr>
+<tr class="even">
+<td align="left">CENSUS</td>
+<td align="left">COUNTY</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">AUTAUGA</td>
+<td align="right">1</td>
+<td align="left">CHEMICAL TOTALS</td>
+<td align="left">CHEMICAL TOTALS - OPERATIONS WITH EXPENSE</td>
+<td align="right">192</td>
+</tr>
+<tr class="odd">
+<td align="left">CENSUS</td>
+<td align="left">COUNTY</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">AUTAUGA</td>
+<td align="right">1</td>
+<td align="left">FERTILIZER TOTALS</td>
+<td align="left">FERTILIZER TOTALS, INCL LIME &amp; SOIL CONDITIONERS - EXPENSE, MEASURED IN $</td>
+<td align="right">2237000</td>
+</tr>
+<tr class="even">
+<td align="left">CENSUS</td>
+<td align="left">COUNTY</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">AUTAUGA</td>
+<td align="right">1</td>
+<td align="left">FERTILIZER TOTALS</td>
+<td align="left">FERTILIZER TOTALS, INCL LIME &amp; SOIL CONDITIONERS - OPERATIONS WITH EXPENSE</td>
+<td align="right">221</td>
+</tr>
+<tr class="odd">
+<td align="left">CENSUS</td>
+<td align="left">COUNTY</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">BULLOCK</td>
+<td align="right">11</td>
+<td align="left">CHEMICAL TOTALS</td>
+<td align="left">CHEMICAL TOTALS - EXPENSE, MEASURED IN $</td>
+<td align="right">861000</td>
+</tr>
+<tr class="even">
+<td align="left">CENSUS</td>
+<td align="left">COUNTY</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">BULLOCK</td>
+<td align="right">11</td>
+<td align="left">CHEMICAL TOTALS</td>
+<td align="left">CHEMICAL TOTALS - OPERATIONS WITH EXPENSE</td>
+<td align="right">102</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">honey_state2 &lt;-<span class="st"> </span>honey_state[<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">10</span>,<span class="dv">11</span>,<span class="dv">16</span>,<span class="dv">17</span>,<span class="dv">20</span>)]
+<span class="kw">kable</span>(<span class="kw">head</span>(honey_state2))</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Program</th>
+<th align="left">GeoLevel</th>
+<th align="left">State</th>
+<th align="right">StateANSI</th>
+<th align="left">County</th>
+<th align="left">CountyANSI</th>
+<th align="left">Commodity</th>
+<th align="left">DataItem</th>
+<th align="right">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">CENSUS</td>
+<td align="left">STATE</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">HORTICULTURE TOTALS</td>
+<td align="left">HORTICULTURE TOTALS - OPERATIONS WITH SALES</td>
+<td align="right">28</td>
+</tr>
+<tr class="even">
+<td align="left">CENSUS</td>
+<td align="left">STATE</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">HORTICULTURE TOTALS</td>
+<td align="left">HORTICULTURE TOTALS - OPERATIONS WITH SALES</td>
+<td align="right">33</td>
+</tr>
+<tr class="odd">
+<td align="left">CENSUS</td>
+<td align="left">STATE</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">HORTICULTURE TOTALS</td>
+<td align="left">HORTICULTURE TOTALS - OPERATIONS WITH SALES</td>
+<td align="right">44</td>
+</tr>
+<tr class="even">
+<td align="left">CENSUS</td>
+<td align="left">STATE</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">HORTICULTURE TOTALS</td>
+<td align="left">HORTICULTURE TOTALS - OPERATIONS WITH SALES</td>
+<td align="right">19</td>
+</tr>
+<tr class="odd">
+<td align="left">CENSUS</td>
+<td align="left">STATE</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">HORTICULTURE TOTALS</td>
+<td align="left">HORTICULTURE TOTALS - OPERATIONS WITH SALES</td>
+<td align="right">12</td>
+</tr>
+<tr class="even">
+<td align="left">CENSUS</td>
+<td align="left">STATE</td>
+<td align="left">ALABAMA</td>
+<td align="right">1</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">HORTICULTURE TOTALS</td>
+<td align="left">HORTICULTURE TOTALS - OPERATIONS WITH SALES</td>
+<td align="right">32</td>
+</tr>
+</tbody>
+</table>
+<p>Futher exploration of the data found several characters in the Value column, we’ll have to fix that but need to first understand why the characters are there. Lucky for us, the NASS website also includes a <a href="https://quickstats.nass.usda.gov/src/glossary.pdf">glossary</a> which is more than handy in a situation like this. The values we see here are: (D) and (Z), which mean “Withheald to avoid discolsing data for individual operations” and “Less than half of the rounding unit” respectively. As I understand it (Z) is essentially a (NULL) value and can be simply replaced with a 0 but (D) is tricky since it could be 0 or it could be extremely large. There are a number of things we could do to fix them: replace them with 0 (positively skewing our results), use a total average (skewing our results in a strange way), use a weighted average based on a certain metric (skewing our data), average based on another metric (also skewing our data), or make an assumption (which will most likely skew our data). What I think from my gut instinct is that using an average based on a metric would be the best way to do this as it is less prone to futher skewing our data in any extreme cases. The metric that I think will be the most effective is an average for the state for the specific data item; an alternative at the county level would be to use average by state/county/data item, but having tried that unsuccessfully it led to creating too many null values due to some statistics not being available at that level. Thankfully, SQL makes doing just that really simple (see the first appendix–even though I’ll include the code below for some of the R work). Let’s try to put that together:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#Replace (Z)'s with 0 value</span>
+<span class="co">#honey_county2$Value[honey_county2$Value == &quot; (Z)&quot;] &lt;- as.integer(0)</span>
+<span class="co">#honey_state2$Value[honey_state2$Value == &quot; (Z)&quot;] &lt;- as.integer(0)</span>
+
+<span class="co">#Remove comma's from digits</span>
+<span class="co">#library(stringr)</span>
+<span class="co">#honey_county2$Value &lt;- str_replace_all(honey_county2$Value, &quot;[:punct:]&quot;, &quot;&quot;)</span>
+<span class="co">#honey_state2$Value &lt;- str_replace_all(honey_state2$Value, &quot;[:punct:]&quot;, &quot;&quot;)</span>
+
+<span class="co">#check to see if it worked correctly</span>
+<span class="co">#honey_county2$Value[honey_county2$Value == &quot; (Z)&quot;]</span>
+<span class="co">#honey_county2$Value[honey_county2$Value == &quot; (D)&quot;]</span>
+<span class="co">#honey_state2$Value[honey_county2$Value == &quot; (Z)&quot;]</span>
+<span class="co">#honey_state2$Value[honey_county2$Value == &quot; (D)&quot;]</span>
+
+<span class="co">#Remove NA's to zero</span>
+<span class="co">#honey_county2$Value[is.na(honey_county2$Value)] &lt;- as.integer(0)</span></code></pre></div>
+<p><em>Important note</em>: R currently cannot properly store integers greater than 2,147,483,647 (I was getting an error which <a href="http://stackoverflow.com/questions/14589354/struggling-with-integers-maximum-integer-size">pointed me to this link</a> ). As a result, I have fixed all values greater than 2,147,483,647 to be equal to 2,147,483,647 in the MySQL query. This will absolutely lead to errors in our data, and in a real-life situation this would never be a suggestion to recommened, ever. As my purpose is more about the journey than the destination (ahem), I this is a necessary evil I had to choose, we may not even be affected by it in the end. But in real-life, we will always be affected by the assumptions we make.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#Change Values into Int</span>
+honey_county2$Value &lt;-<span class="st"> </span><span class="kw">as.integer</span>(honey_county2$Value)
+honey_state2$Value &lt;-<span class="st"> </span><span class="kw">as.integer</span>(honey_state2$Value)
+
+<span class="co">#Remove NA's to zero</span>
+<span class="co">#NA's are from null values from the MySQL Query</span>
+<span class="co">#Where (D) values did not have an average to calculate</span>
+honey_county2$Value[<span class="kw">is.na</span>(honey_county2$Value)] &lt;-<span class="st"> </span><span class="kw">as.integer</span>(<span class="dv">0</span>)
+honey_state2$Value[<span class="kw">is.na</span>(honey_state2$Value)] &lt;-<span class="st"> </span><span class="kw">as.integer</span>(<span class="dv">0</span>)</code></pre></div>
 </div>
 <div id="data-tidying" class="section level3">
 <h3>Data Tidying</h3>
+<p>With the data loaded, and more-or-less cleaned, for viewing purposes it should be tidy’d a bit.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)</code></pre></div>
+<pre><code>## 
+## Attaching package: 'dplyr'</code></pre>
+<pre><code>## The following objects are masked from 'package:stats':
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">honey_county2 &lt;-<span class="st"> </span>honey_county2 %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">arrange</span>(., DataItem) %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">arrange</span>(., State)
+
+honey_state2 &lt;-<span class="st"> </span>honey_county2 %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">arrange</span>(., DataItem) %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">arrange</span>(., State)</code></pre></div>
 </div>
 <div id="data-restructuring" class="section level3">
+<h3>Data Restructuring</h3>
+</div>
+<div id="data-exploration-part-2-state-level" class="section level3">
+<h3>Data Exploration Part 2: State Level</h3>
+</div>
+<div id="data-cleaning-1" class="section level3">
+<h3>Data Cleaning</h3>
+</div>
+<div id="data-tidying-1" class="section level3">
+<h3>Data Tidying</h3>
+</div>
+<div id="data-restructuring-1" class="section level3">
 <h3>Data Restructuring</h3>
 </div>
 </div>
@@ -644,7 +771,7 @@ honey_state &lt;-<span class="st"> </span>(<span class="kw">sqlQuery</span>(con,
 </div>
 <div id="appendix-optional" class="section level2">
 <h2>Appendix (optional):</h2>
-<p><a href="http://www.github.com/raw%20file%20to%20the%20appendix">Appendix 1: Data Merging in MySQL - NASS and</a></p>
+<p>Appendix 1: Data Merging in MySQL: <a href="https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/HoneyIShrunkTheBees.sql">MySQL Query</a> and <a href="https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/Appendix/Appendix1-DataMySQL.Rmd">Appendix 1 RMarkdown write-up</a></p>
 </div>
 
 

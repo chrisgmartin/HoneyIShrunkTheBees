@@ -56,7 +56,7 @@ Many/most/all beekeepers harvest honey from their bees as a source of income, bu
 
 ## Part 2 - Data:
 
-Here I outline the data import process, review the data, clean it, tidy it, and structure it to suit our needs. Please see [Appendix 1: Data Merging in MySQL](https://github.com/chrisgmartin/HoneyIShrunkTheBees/tree/master/Appendix) at the end for more details on this process. The MySQL queries can also be found there.
+Here I outline the data import process, review the data, clean it, tidy it, and structure it to suit our needs. Please see [Appendix 1: Data Merging in MySQL](https://github.com/chrisgmartin/HoneyIShrunkTheBees/tree/master/Appendix) at the end for more details on this process. The MySQL queries can also be found there. All of the data has also been saved in all of their forms (finished and unfinished) in the [GitHub folder: Data](https://github.com/chrisgmartin/HoneyIShrunkTheBees/tree/master/Data)
 
 ### Data Import:
 
@@ -91,9 +91,20 @@ kable(head(honey_state, 3))
 
 The NASS data sets include a column for ANSI codes at both the state and county level. These ANSI codes can be extremely useful in analyzing our data, especially when it comes to plotting it all on a map. ANSI stands for [American National Standards Institute](https://www.census.gov/geo/reference/ansi.html) which are standardized codes used to ensure uniform identification of geography between various agencies. Since September 2008, ANSI has also replaced the use of [Federial Information Processessing Standard](https://en.wikipedia.org/wiki/FIPS_county_code) (FIPS) codes and National Institute of Standards and Technology codes (NIST). 
 
+Using the FIPS County codes [reference table](https://www.census.gov/geo/reference/codes/cou.html) which has been saved and stored locally using MySQL, we can see if the ANSI codes match the FIPS codes:
 
 ```{r}
-#load FIPS code to check if they are the same as ANSI codes at both state and county levels
+#load FIPS 
+FIPS <- (sqlQuery(con, "select * from FIPS", stringsAsFactors=FALSE))
+```
+
+
+
+```{r}
+# code to check if they are the same as ANSI codes at both state and county levels
+library(dplyr)
+
+
 ```
 
 
@@ -196,7 +207,6 @@ honey_state2$Value[is.na(honey_state2$Value)] <- as.integer(0)
 With the data loaded, and more-or-less cleaned, for viewing purposes it should be tidy'd a bit.
 
 ```{r}
-library(dplyr)
 honey_county2 <- honey_county2 %>% 
   arrange(., DataItem) %>% 
   arrange(., State)
