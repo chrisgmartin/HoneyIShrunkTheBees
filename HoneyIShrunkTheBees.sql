@@ -405,3 +405,23 @@ SELECT * FROM USAHorticultureCensus_County_allyears;
 
 SELECT COUNT(*)
 FROM honey_county;
+
+
+/* export results with headers */
+(SELECT 'Program', 'Year', 'Period', 'WeekEnding', 'GeoLevel', 'State', 'StateANSI', 'AGDistrict', 'AGDistrictCode', 'County', 'CountyANSI', 'ZipCode', 'Region', 'WatershedCode', 'Watershed', 'Commodity', 'DataItem', 'Domain', 'DomainCategory', 'Value', 'CV')
+UNION
+(SELECT Program, Year, Period, WeekEnding, GeoLevel, State, StateANSI, AGDistrict, AGDistrictCode, County, CountyANSI, ZipCode, Region, WatershedCode, Watershed, Commodity, DataItem, Domain, DomainCategory, Value, CV
+FROM honey_state
+INTO OUTFILE 'C:/ProgramData/MySQL/MySQL Server 5.7/Uploads/honey_state.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n');
+
+(SELECT 'Program', 'Year', 'Period', 'WeekEnding', 'GeoLevel', 'State', 'StateANSI', 'AGDistrict', 'AGDistrictCode', 'County', 'CountyANSI', 'ZipCode', 'Region', 'WatershedCode', 'Watershed', 'Commodity', 'DataItem', 'Domain', 'DomainCategory', 'Value', 'CV')
+UNION
+(SELECT Program, Year, Period, WeekEnding, GeoLevel, State, StateANSI, AGDistrict, AGDistrictCode, County, CountyANSI, ZipCode, Region, WatershedCode, Watershed, Commodity, DataItem, Domain, DomainCategory, Value, CV
+FROM honey_county
+INTO OUTFILE 'C:/ProgramData/MySQL/MySQL Server 5.7/Uploads/honey_county.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n');

@@ -19,7 +19,7 @@ Simply enough, each .CSV was imported into a schema (titled **HISP**) using the 
 
 The first set of data we gathered came from the [National Agriculture Statistics Service website](https://quickstats.nass.usda.gov/), which houses a large amount of data related to United States Agriculture. The website stores census and survey data on a number of subjects (the main categories are animals, products, crops, demographics, economics, and environment) across a number of geographic levels (national, state, county, and zip code) for a number of years. The data can be access by the website UI allowing the user to select each subject, geographic level, and year which can then be exported into a .CSV file, or the entire database can be downloaded as a text file after extracting the database .GZ. For our purposes, it was simple enough to query the database using the website rather than have to deal with the large and cumbersome dataset. 
 
-If we were to import the data into R directly we'd use the following:
+If we were to import the data into R directly we'd use the following (the [SQL query can be found using this link](https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/HoneyIShrunkTheBees.sql) ):
 
 ```{r eval=FALSE}
 #County Data
