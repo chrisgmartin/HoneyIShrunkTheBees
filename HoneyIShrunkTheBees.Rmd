@@ -11,10 +11,6 @@ output:
   pdf_document: default
 ---
 
-
-
-
-
 ```{r include=FALSE, cache=FALSE}
 # DO NOT REMOVE
 # THIS IS FOR SETTING SOME PLOTTING PARAMETERS SO THAT YOUR PLOTS DON'T TAKE UP TOO MUCH SPACE
@@ -32,38 +28,29 @@ if (before && options$fig.show!='none') par(mar=c(4,4,.2,.1),cex.lab=.95,cex.axi
 
 ## Part 1 - Introduction:
 
-Bees: the most effective pollinator on the planet. In the United States, we seem to have a love/hate relationship with these facinating creatures: on the one hand we are well aware and appreciative of their role in nature and yet the number of bees is quickly dwindling without us giving any significant help. But, one of the many questions we will explore here is: do we rely on them?
+Bees: the most **effective** pollinator on the planet. In the United States, we seem to have a love/hate relationship with these facinating creatures; on the one hand we are well aware and appreciative of their role in nature and yet the number of bees is quickly dwindling without us giving any significant help. But, one of the many questions we will explore here is: *do we rely on them?*
 
 By looking at a variety of data, we hope to find links between the production of honey and other agricultural statistics.
 
 ### Why Honey:
 
-Collecting honey is an ancient tradition dating back over 8,000 years ago$^1$. It's a product made by bees while foraging for nectar from flowers. While honey bees are the most common type of bee that produces honey that humans extract for food, there are a number of other bees and wasps that do create honey, and all bees and other insects pollinate. For the purposes of this project, we are going to ignore the details and make the assumption that honey is directly related to bees.
+Collecting honey is an ancient tradition dating back over 8,000 years ago$^1$. It's a product made by bees while foraging for nectar from flowers. While honey bees are the most common type of bee that produces honey that humans extract for food, there are a number of other bees and wasps that create honey, and of course all bees and other insects pollinate. For the purposes of this project, we are going to ignore the details and make the assumption that honey is directly related to bees.
 
 Many/most/all beekeepers harvest honey from their bees as a source of income, but they also sell or rent hives to farms. As the number of bees across the world have steadily dropped (for several reasons, none-of-which we will explore here), renting or selling hives has become a lucrative business. The sold or leased bees are taken to a farm and help to naturally pollinate farms and the lands around them, helping the farmer to grow crop, cultivate land, fertilize land, and develop the land more effectively. Since the bees return to the hive after foraging, they make honey from the nectar, are returned the beekeeper or farmer, who in turn can harvest the honey.
 
+Honey production is valuable to the United States economy. Honey is used in making desserts, breads, barbecues, mustards, jellies and ointment treatments. Honey as amazing health benefits, too. It's loaded with antibacterial and antifungal properties and has been known to work well as a dextromethorphan, which is a common ingredient in cough medications to soothe cough. Additionally, honey can treat dandruff, used in energy drinks, and treat wounds and burns. It is a common belief that honey consumption can also help fight local allergies.
 
-### More Initial Observations:
-
-
-
-
-
-
-
-
-
+This study sets out to understand better understand some of the impacts on honey production in the United States by exploring various data fields across all 50 states, and futher inbetween.
 
 ## Part 2 - Data:
 
-Here I outline the data import process, review the data, clean it, tidy it, and structure it to suit our needs. Please see [Appendix 1: Data Merging in MySQL](https://github.com/chrisgmartin/HoneyIShrunkTheBees/tree/master/Appendix) at the end for more details on this process. The MySQL queries can also be found there. All of the data has also been saved in all of their forms (finished and unfinished) in the [GitHub folder: Data](https://github.com/chrisgmartin/HoneyIShrunkTheBees/tree/master/Data)
+Outlined in this section is the data processes: [1] Importing, [2] Data Exploration, [3] Data manipulation (cleaning and tidying), and [4] Data Structuring. Please see [Appendix 1: Data Merging in MySQL](https://github.com/chrisgmartin/HoneyIShrunkTheBees/tree/master/Appendix) for more details on the data importing and manipulation techinques; the MySQL queries can also be found there. All of the data has been saved in the [GitHub folder: Data](https://github.com/chrisgmartin/HoneyIShrunkTheBees/tree/master/Data).
 
 ### Data Import:
 
-What is likely to be the most important part of any analysis, we need data to analyse. Fortunately for our project, there is a plethora of data freely available from a variety of sources.
+The most important part of this analysis is obviously the data. Fortunately there is a plethora of open source data available from a variety of sources.
 
-After following some detailed [Stack Overflow](https://stackoverflow.com/questions/10292326/how-to-connect-r-with-mysql-or-how-to-install-rmysql-package) tips, I was able to connect to a local MySQL server that I created called 'HISP' (Honey, I Shrunk the Production). The HISP database stored a data from the sources below.
-
+After following some detailed [Stack Overflow](https://stackoverflow.com/questions/10292326/how-to-connect-r-with-mysql-or-how-to-install-rmysql-package) tips, I was able to connect to a local MySQL server that I created called 'HISP' (Honey, I Shrunk the Production). Please see the HIPS database sources in Appendix 1 and outlined below.
 
 ```{r}
 library(RODBC)
@@ -71,19 +58,21 @@ con <- odbcConnect("hisp")
 sqlQuery(con, "use hisp")
 ```
 
-
 #### National Agriculture Statistics Service:
 
-The first set of data we gathered came from the [National Agriculture Statistics Service website](https://quickstats.nass.usda.gov/) (NASS), which houses a large amount of data related to United States Agriculture. The website stores census and survey data on a number of subjects (the main categories are animals, products, crops, demographics, economics, and environment) across a number of geographic levels (national, state, county, and zip code) for a number of years. The data can be access by the website UI allowing the user to select each subject, geographic level, and year which can then be exported into a .CSV file, or the entire database can be downloaded as a text file after extracting the database .GZ. For our purposes, it was simple enough to query the database using the website rather than have to deal with the large and cumbersome dataset. The queries were then saved into seperate .CSV files, uploaded to GitHub, [imported into MySQL, and prepped](https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/HoneyIShrunkTheBees.sql) to be ready to import into R:
+The first set of data came from the [National Agriculture Statistics Service website](https://quickstats.nass.usda.gov/) (NASS), which houses a large amount of data related to United States Agriculture. The website stores census and survey data on a number of subjects (the main categories are animals, products, crops, demographics, economics, and environment) across a number of geographic levels (national, state, county, and zip code) for a number of years. The data can be access by the website UI allowing the user to select each subject, geographic level, and year which can then be exported into a .CSV file, or the entire database can be downloaded as a text file after extracting the database .GZ. Howevey, it was simple enough to query the database using the website rather than have to deal with the large and cumbersome dataset. The queries were then saved into seperate .CSV files, [imported into MySQL, and prepped](https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/HoneyIShrunkTheBees.sql). It is now ready to import into R:
 
 ```{r}
 #load the data
-honey_county <- (sqlQuery(con, "select * from honey_county", stringsAsFactors=FALSE))
-honey_state <- (sqlQuery(con, "select * from honey_state", stringsAsFactors=FALSE))
+honey_county <- as.data.frame(sqlQuery(con, "select * from honey_county", stringsAsFactors=FALSE))
+honey_state <- as.data.frame(sqlQuery(con, "select * from honey_state", stringsAsFactors=FALSE))
+#If MySQL isn't set up for you, the tables can be imported via GitHub:
+#honey_county <- read.csv('https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/honey_county.csv', header = TRUE)
+#honey_state <- read.csv('https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/honey_state.csv', header = TRUE)
+
 
 kable(head(honey_county, 3))
 kable(head(honey_state, 3))
-
 ```
 
 
@@ -91,11 +80,16 @@ kable(head(honey_state, 3))
 
 The NASS data sets include a column for ANSI codes at both the state and county level. These ANSI codes can be extremely useful in analyzing our data, especially when it comes to plotting it all on a map. ANSI stands for [American National Standards Institute](https://www.census.gov/geo/reference/ansi.html) which are standardized codes used to ensure uniform identification of geography between various agencies. Since September 2008, ANSI has also replaced the use of [Federial Information Processessing Standard](https://en.wikipedia.org/wiki/FIPS_county_code) (FIPS) codes and National Institute of Standards and Technology codes (NIST). 
 
-Using the FIPS County codes [reference table](https://www.census.gov/geo/reference/codes/cou.html) which has been saved and stored locally using MySQL, we can see if the ANSI codes match the FIPS codes:
+One item of note is that the states in our NASS data sets are full text state names (for example, California instead of CA, or New York instead of NY). There is a seperate SQL script hosted at [statetable.com](http://www.statetable.com)$^2$ that was used to convert the full length text in the NASS data into its abbreviated form to simplify our useage. The script is hosted on my [GitHub page](https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/Data/state_table.sql) for reference.
+
+Using the FIPS County codes$^3$ [reference table](https://www.census.gov/geo/reference/codes/cou.html), which has been saved and stored locally using MySQL, we can see if the ANSI codes match the FIPS codes:
 
 ```{r}
 #load FIPS 
 FIPS <- (sqlQuery(con, "select * from FIPS", stringsAsFactors=FALSE))
+
+#For those without a MySQL link established:
+#FIPS <- read.csv('https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/FIPS.csv', header = TRUE)
 ```
 
 
@@ -105,16 +99,8 @@ FIPS <- (sqlQuery(con, "select * from FIPS", stringsAsFactors=FALSE))
 library(dplyr)
 
 
+
 ```
-
-
-
-
-#### Data on Bee Colonies
-
-To verify if number of bees are going up or down
-
-
 
 
 
@@ -132,36 +118,16 @@ Since we've finished with our MySQL connection, it should always be closed out t
 odbcClose(con)
 ```
 
-
-
-### Data Exploration
-
-Since we have the data set we can explore what's in it before we decide where and how to clean it. Let's start with the column for data descriptions: Data Item
-
-```{r}
-length(unique(honey_county$DataItem))
-nrow(honey_county)
-length(unique(honey_state$DataItem))
-nrow(honey_state)
-
-```
-
-There are a lot more data items (87 more to be exact) in the state set than in the county set, yet the county set has more variables/row (33,548). This could mean a number of things but it certainly means that the starting point in the analysis will be counties.
-
-```{r}
-unique(honey_county$DataItem)
-```
-
-We have a number of items here to sort through, but need to clean what can be cleaned. Other items of note are the columns. There are several that are unnecessary for our purposes. Essentially, the columns we need (or might need) are: Program (column 1), Period (3), GeoLevel (5), State (6), StateANSI (7), County (10), CountyANSI (11), Commodity (16), DataItem (17), and Value (20). The first 10 items are descriptive, while the final column contains our variable. *Note*: Year (2) has been removed for the time being, as our analysis is more of an estimate rather than a time-series and I believe that having more variables in our analysis will help more for stability than it will bias results.
-
 ### Data Cleaning
+
+We have a number of items here to sort through, but need to clean what can be cleaned. Other items of note are the columns. There are several that are unnecessary for our purposes. Essentially, the columns we need (or might need) are: Program (column 1), Year (2), GeoLevel (5), State (6), StateANSI (7), County (10), CountyANSI (11), Commodity (16), DataItem (17), and Value (20). The first 10 items are descriptive, while the final column contains our variable.
 
 Let's pull in only the columns we need:
 
 ```{r}
-honey_county2 <- honey_county[c(1,5,6,7,10,11,16,17,20)]
+honey_county2 <- honey_county[c(1,2,5,6,7,10,11,16,17,20)]
 kable(head(honey_county2))
-honey_state2 <- honey_state[c(1,5,6,7,10,11,16,17,20)]
+honey_state2 <- honey_state[c(1,2,5,6,7,10,11,16,17,20)]
 kable(head(honey_state2))
 ```
 
@@ -169,12 +135,14 @@ Futher exploration of the data found several characters in the Value column, we'
 
 
 ```{r}
-#Replace (Z)'s with 0 value
+#Replace (Z)'s and (D)'s with 0 value
 #honey_county2$Value[honey_county2$Value == " (Z)"] <- as.integer(0)
 #honey_state2$Value[honey_state2$Value == " (Z)"] <- as.integer(0)
+#honey_county2$Value[honey_county2$Value == " (D)"] <- as.integer(0)
+#honey_state2$Value[honey_state2$Value == " (D)"] <- as.integer(0)
 
 #Remove comma's from digits
-#library(stringr)
+library(stringr)
 #honey_county2$Value <- str_replace_all(honey_county2$Value, "[:punct:]", "")
 #honey_state2$Value <- str_replace_all(honey_state2$Value, "[:punct:]", "")
 
@@ -183,12 +151,9 @@ Futher exploration of the data found several characters in the Value column, we'
 #honey_county2$Value[honey_county2$Value == " (D)"]
 #honey_state2$Value[honey_county2$Value == " (Z)"]
 #honey_state2$Value[honey_county2$Value == " (D)"]
-
-#Remove NA's to zero
-#honey_county2$Value[is.na(honey_county2$Value)] <- as.integer(0)
 ```
 
-*Important note*: R currently cannot properly store integers greater than 2,147,483,647 (I was getting an error which [pointed me to this link](http://stackoverflow.com/questions/14589354/struggling-with-integers-maximum-integer-size) ). As a result, I have fixed all values greater than 2,147,483,647 to be equal to 2,147,483,647 in the MySQL query. This will absolutely lead to errors in our data, and in a real-life situation this would never be a suggestion to recommened, ever. As my purpose is more about the journey than the destination (ahem), I this is a necessary evil I had to choose, we may not even be affected by it in the end. But in real-life, we will always be affected by the assumptions we make.
+*Important note*: R currently cannot properly store integer values greater than 2,147,483,647 (I was getting an error which [pointed me to this link](http://stackoverflow.com/questions/14589354/struggling-with-integers-maximum-integer-size) ). As a result, I have fixed the "*CROP TOTALS - SALES, MEASURED IN $*" rows in the county file (which contained several values greater than 2,147,483,647) to be the log form, and 66 other rows in the state file. The original idea was to change all items above this limit to equal the limit but it would absolutely lead to errors in our data, and in a real-life situation this would never be a suggestion to recommened, ever. In real-life, we will always be affected by the assumptions we make, so limiting the potential for data bias can go a long way. The solution was to set all values in the State dataset as its log value which also has the benefit of 'normalizing' the data.
 
 ```{r}
 #Change Values into Int
@@ -202,6 +167,16 @@ honey_county2$Value[is.na(honey_county2$Value)] <- as.integer(0)
 honey_state2$Value[is.na(honey_state2$Value)] <- as.integer(0)
 ```
 
+But we're not done yet! ANSI codes need to be in a specific order for mapping. They need a 3 digit length with leading zeros. NULL values are present! But removing rows with NULL values in CountyANSI shouldn't handled in the same way as before (we used 0's for when Values were NULL) because then we would be losing essential information. Rather, we can leave them as NULL because the CountryANSI column is only used in plotting values on a map; the values still exist and remain in the data, but since we can't decide where to place them on the map they remain invisible. Then we're faced with another task: mapping using the ChoroplethR package requires combined 2 digit state ANSI codes AND 3 digit county codes. I've included the code to covert them below,  however the 'maps' package requires only a combined State ANSI code (1 or 2 digit) and County ANSI code (3 digit), so we'll only keep those active, and the State requirement is the State name uncapitalized which will be fixed as needed.
+
+```{r}
+#honey_county2$StateANSI2 <- sprintf("%02d", honey_county2$StateANSI)
+#honey_state2$StateANSI2 <- sprintf("%02d", honey_state2$StateANSI)
+honey_county2$CountyANSI <- sprintf("%03d", honey_county2$CountyANSI)
+honey_county2$CountyANSI <- as.numeric(paste0(honey_county2$StateANSI, honey_county2$CountyANSI))
+```
+
+
 ### Data Tidying
 
 With the data loaded, and more-or-less cleaned, for viewing purposes it should be tidy'd a bit.
@@ -211,11 +186,94 @@ honey_county2 <- honey_county2 %>%
   arrange(., DataItem) %>% 
   arrange(., State)
 
-honey_state2 <- honey_county2 %>% 
+honey_state2 <- honey_state2 %>% 
   arrange(., DataItem) %>% 
   arrange(., State)
 ```
 
+
+
+
+
+
+
+
+
+
+### Data Exploration
+
+Since we have the data set we can explore what's in it before we decide where and how to clean it. Let's start with the column for data descriptions: Data Item
+
+```{r}
+length(unique(honey_county2$DataItem))
+nrow(honey_county2)
+length(unique(honey_state2$DataItem))
+nrow(honey_state2)
+
+```
+
+There are a lot more data items (87 more to be exact) in the state set than in the county set, yet the county set has more variables/row (33,548).
+
+```{r}
+kable(unique(honey_county$DataItem))
+```
+
+
+
+
+
+
+
+
+
+
+
+#### Exploring Bee Colonies
+
+We can use this data set to explore how sales trends have occured
+
+
+Let's now take a look at how the number of honey bee colonies are disbursed in the states (remember, all values in the States data set are log values):
+
+
+```{r}
+#calculate or plot number of bee colonies over the years
+kable(honey_county2[which(honey_county2$DataItem == 'HONEY, BEE COLONIES - OPERATIONS WITH SALES'), c(2,9,10)] %>% 
+  group_by(Year) %>% 
+  summarise(value = sum(Value)))
+
+kable(honey_state2[which(honey_state2$DataItem == 'HONEY, BEE COLONIES - OPERATIONS WITH SALES'), c(2,9,10)] %>% 
+  group_by(Year) %>% 
+  summarise(value = sum(exp(Value))))
+```
+
+Interestingly, the number of bee colonies (those that are actually operations with sales, not wild bees) didn't change a whole lot between 2002 and 2007 at the county level; it's more difficult to tell at the state level though as they have dropped significantly from 1997 and 2002 but grew between 2002 and 2007.
+
+#### Looking into Honey Production
+
+In the Honey Production data, there are a number of variables that we can choose to analyse such as the number of Operations with Sales, number of Operations with Production, Sales in $'s, and Production in lb's. The most important for this project I believe is Production in lb's since the number of operations can vary (due to business consolidation, expansion, etc.) and sales is highly influenced by economic factors not just how the bee's "performed" throughout the year.
+
+```{r}
+kable(honey_county2[which(honey_county2$DataItem == 'HONEY - PRODUCTION, MEASURED IN LB'), c(2,9,10)] %>% 
+  group_by(Year) %>% 
+  summarise(value = sum(Value)))
+
+kable(honey_state2[which(honey_state2$DataItem == 'HONEY - PRODUCTION, MEASURED IN LB'), c(2,9,10)] %>% 
+  group_by(Year) %>% 
+  summarise(value = sum(exp(Value))))
+```
+
+Again, the production of honey seems to follow the size of the bee colonies with its ups and downs through the years. Also very facinating, we can see how the honey production per colony has changed at the state level:
+
+
+```{r}
+kable(honey_state2[which(honey_state2$DataItem == 'HONEY - PRODUCTION, MEASURED IN LB / COLONY'), c(2,9,10)] %>% 
+  group_by(Year) %>% 
+  summarise(value = sum(exp(Value))))
+```
+
+Extremely interesting. We're seeing a major drop in production per colony throughout the years.
+
 ### Data Restructuring
 
 
@@ -223,36 +281,129 @@ honey_state2 <- honey_county2 %>%
 
 
 
+### Initial Observations and Comments:
 
-### Data Exploration Part 2: State Level
+The resources I listed (mainly NASS), are excellent resources and economically valueable resources for researchers and businesses alike. The data seems to be well maintained, fairly simple to extract, and reliably updated. Kudos, for that.
 
+Of the variables selected there are some I expect to have high positive correlation to Honey Production, while some I expect to have a strong negative correlation with Honey Production. Of those, horticulture data seems like it would have a strong impact as bees rely on pollen to survive. Chemical and Fertilizer use, however, I expect to have a strong negative correlation. My initial opinion is that these chemicals and fertilizers make it difficult for bees to sustain themselves in the "nature" we force them into. Crops, I believe, can be a "control" group in that I expect them to be fairly neutral to our Honey Produciton as they may or may not be directly related to our pollinator end product.
 
+Another observation is the limited data in some categories. For example, at the state level for Honey Production in lb's, we have annual data from 1987 to 2015; however, in the county level we only have three years of data: 2002, 2007, and 2012. This limits our ability to really dive into the data.
 
-### Data Cleaning
-
-
-
-
-
-### Data Tidying
-
-
-
-
-
-
-
-
-
-
-### Data Restructuring
-
-
+By the end of this analysis: 1I don't expect my personal expectations to bias my end results, in fact I hope I am pleasantly surprised my results in the end.
 
 ## Part 3 - Exploratory data analysis:
 
 
 ### Map
+
+```{r}
+library(choroplethr)
+library(choroplethrMaps)
+data(state.regions)
+
+HS_BeeCol <- honey_state2[which(honey_state2$DataItem == 'HONEY, BEE COLONIES - OPERATIONS WITH SALES'), c(4,10)]
+
+HS_HonPlot <- HS_BeeCol %>% 
+  group_by(State) %>% 
+  summarize(value = sum(Value))
+
+HS_HonPlot <- data.frame(region= state.regions$region, value= HS_HonPlot[match(state.regions$abb, HS_HonPlot$State), 2])
+
+state_choropleth(HS_HonPlot, title = "Honey Bee Colony Operations", legend = "Num of Colonies", num_colors = 1)
+```
+
+As far as counties go, the map is a bit more segregated than expected with some counties having large quantities of bee colonies than others (black counties have no colonies):
+
+```{r}
+HC_BeeCol <- honey_county2[which(honey_county2$DataItem == 'HONEY, BEE COLONIES - OPERATIONS WITH SALES'), c(7,10)]
+
+colnames(HC_BeeCol) <- c('region', 'value')
+
+HC_HonPlot <- HC_BeeCol %>% 
+  group_by(region) %>% 
+  summarize(value = sum(value))
+
+county_choropleth(HC_HonPlot, title = "Honey Bee Colony Operations", legend = "Num of Colonies", num_colors = 1)
+```
+
+Let's also take a look at chemical expenditures
+
+```{r}
+HS_ChemExp <- honey_state2[which(honey_state2$DataItem == 'CHEMICAL TOTALS - EXPENSE, MEASURED IN $'), c(4,10)]
+
+HS_ChemPlot <- HS_ChemExp %>% 
+  group_by(State) %>% 
+  summarize(value = sum(Value))
+
+HS_ChemPlot <- data.frame(region= state.regions$region, value= HS_ChemPlot[match(state.regions$abb, HS_ChemPlot$State), 2])
+
+state_choropleth(HS_ChemPlot, title = "Chemical Expenditures", legend = "Amount of Chemical Expenses in $", num_colors = 1)
+```
+
+```{r}
+HC_ChemExp <- honey_county2[which(honey_county2$DataItem == 'CHEMICAL TOTALS - EXPENSE, MEASURED IN $'), c(7,10)]
+
+colnames(HC_ChemExp) <- c('region', 'value')
+
+HC_ChemPlot <- HC_ChemExp %>% 
+  group_by(region) %>% 
+  summarize(value = sum(value))
+
+county_choropleth(HC_ChemPlot, title = "Chemical Expenditures", legend = "Amount of Chemical Expenses in $", num_colors = 1)
+```
+
+```{r}
+HS_FertExp <- honey_state2[which(honey_state2$DataItem == 'FERTILIZER TOTALS, INCL LIME & SOIL CONDITIONERS - EXPENSE, MEASURED IN $'), c(4,10)]
+
+HS_FertPlot <- HS_FertExp %>% 
+  group_by(State) %>% 
+  summarize(value = sum(Value))
+
+HS_FertPlot <- data.frame(region= state.regions$region, value= HS_FertPlot[match(state.regions$abb, HS_FertPlot$State), 2])
+
+state_choropleth(HS_FertPlot, title = "Fertilizer Expenditures", legend = "Amount of Fertilizer Expenses in $", num_colors = 1)
+```
+
+NO COUNTY LEVEL FERTILZIER EXPENSES
+INSTEAD USED FERT TOTAL INC LIME AND SOIL
+
+```{r}
+HC_FertExp <- honey_county2[which(honey_county2$DataItem == 'FERTILIZER TOTALS, INCL LIME & SOIL CONDITIONERS - EXPENSE, MEASURED IN $'), c(7,10)]
+
+colnames(HC_FertExp) <- c('region', 'value')
+
+HC_FertPlot <- HC_FertExp %>% 
+  group_by(region) %>% 
+  summarize(value = sum(value))
+
+county_choropleth(HC_FertPlot, title = "Fertilizer Expenditures", legend = "Amount of Fertilizer Expenses in $", num_colors = 1)
+```
+
+```{r}
+HS_HortSales <- honey_state2[which(honey_state2$DataItem == 'HORTICULTURE TOTALS - SALES, MEASURED IN $'), c(4,10)]
+
+HS_HortPlot <- HS_HortSales %>% 
+  group_by(State) %>% 
+  summarize(value = sum(Value))
+
+HS_HortPlot <- data.frame(region= state.regions$region, value= HS_HortPlot[match(state.regions$abb, HS_HortPlot$State), 2])
+
+state_choropleth(HS_HortPlot, title = "Horticulture Sales", legend = "Amount of Sales of Horticulture in $", num_colors = 1)
+```
+
+NO COUNTY LEVEL HORTICULTURE SALES, INSTEAD USED OPEN ACRES OF HORTICULTURE IN PRODUCTION
+
+```{r}
+HC_HortSales <- honey_county2[which(honey_county2$DataItem == 'HORTICULTURE TOTALS, (EXCL CUT TREES), IN THE OPEN - ACRES IN PRODUCTION'), c(7,10)]
+
+colnames(HC_HortSales) <- c('region', 'value')
+
+HC_HortPlot <- HC_HortSales %>% 
+  group_by(region) %>% 
+  summarize(value = sum(value))
+
+county_choropleth(HC_HortPlot, title = "Acres of Open Horticulture In Production", legend = "Number of Acres", num_colors = 1)
+```
 
 
 
@@ -261,13 +412,38 @@ honey_state2 <- honey_county2 %>%
 ## Part 4 - Inference:
 
 
+
+
+
+
+
+
+
+
+
 ## Part 5 - Conclusion: 
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## References:
 
 [1]  Crane, Eva (1983) The Archaeology of Beekeeping, Cornell University Press, ISBN 0-8014-1609-4
 
+[3] statetable.com; http://www.statetable.com
+
+[2] FIPS County COdes; https://www.census.gov/geo/reference/codes/cou.html
 
 
 ## Appendix (optional):

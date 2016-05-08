@@ -10,8 +10,6 @@ DROP TABLE IF EXISTS USAHorticultureCensus_State_allyears;
 DROP TABLE IF EXISTS FIPS;
 DROP VIEW IF EXISTS honey_state;
 DROP VIEW IF EXISTS honey_county;
-DROP VIEW IF EXISTS honey_state_avg;
-DROP VIEW IF EXISTS honey_county_avg;
 
 /* The SQL Syntax here will first load all 9 of the tables,
 then it will create two new views
@@ -426,23 +424,42 @@ UPDATE honey_county
 SET Value = REPLACE(Value, ",", '');
 
 
-/* This will fix all non-integer values (D) to the state average
-by first creating a table with all averages
-then replacing the (D) with the average */
+/* Per R requirements, values must be less 2147483647
+so the Crop Total Sales rows will be converted to log form for counties,
+and all values are log form for states */
+UPDATE honey_county
+	SET Value = log(Value)
+	WHERE Value != ' (D)'
+    AND DataItem = 'CROP TOTALS - SALES, MEASURED IN $';
+
+UPDATE IGNORE honey_state
+	SET Value = log(Value)
+	WHERE concat('', Value * 1) = Value
+    AND Value > 0;
+ 
+
+/*This will fix all non-integer values (D) to the state log average
+by first creating a table with all log averages
+then replacing the (D) with the log average */
+DROP VIEW IF EXISTS honey_state_avg;
+
 CREATE VIEW honey_state_avg AS
-SELECT  State, DataItem, avg(Value) AS average
-FROM honey_state
-WHERE Value != ' (D)'
-GROUP BY DataItem, State;
+	SELECT  State, DataItem, avg(Value) AS average
+	FROM honey_state
+	WHERE Value != ' (D)'
+	GROUP BY DataItem, State;
 
 SELECT *
 FROM honey_state_avg;
 
+
+DROP VIEW IF EXISTS honey_county_avg;
+
 CREATE VIEW honey_county_avg AS
-SELECT  State, DataItem, avg(Value) AS average
-FROM honey_county
-WHERE Value != ' (D)'
-GROUP BY DataItem, State;
+	SELECT  State, DataItem, avg(Value) AS average
+	FROM honey_county
+	WHERE Value != ' (D)'
+	GROUP BY DataItem, State;
 
 SELECT *
 FROM honey_county_avg;
@@ -464,14 +481,6 @@ UPDATE honey_county C
 	WHERE C.Value = ' (D)';
 
 
-/* Per R requirements, values must be less 2147483647 */
-UPDATE honey_county
-	SET Value = 2147483647
-	WHERE Value > 2147483647;
-
-UPDATE honey_state
-	SET Value = 2147483647
-	WHERE Value > 2147483647;
 
 
 /* Test to see if there are no results = success */

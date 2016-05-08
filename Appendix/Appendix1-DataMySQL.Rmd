@@ -35,7 +35,16 @@ state2 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkT
 state3 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USACropTotalsCensus_State_allyears.csv", header = TRUE)
 state4 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USAHoneyCensus_State_allyears.csv", header = TRUE)
 state5 <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/USAHorticultureCensus_State_allyears.csv", header = TRUE)
+
+#Final Data
+honey_county <- read.csv('https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/honey_county.csv', header = TRUE)
+honey_state <- read.csv('https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/honey_state.csv', header = TRUE)
+FIPS <- read.csv('https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/FIPS.csv', header = TRUE)
 ```
+
+
+
+
 
 However, since the data is now in MySQL we query it for the following table names:
 
