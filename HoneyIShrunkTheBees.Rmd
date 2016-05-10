@@ -26,6 +26,7 @@ if (before && options$fig.show!='none') par(mar=c(4,4,.2,.1),cex.lab=.95,cex.axi
 ```
 
 
+
 ## Part 1 - Introduction:
 
 Bees: the most **effective** pollinator on the planet. In the United States, we seem to have a love/hate relationship with these facinating creatures; on the one hand we are well aware and appreciative of their role in nature and yet the number of bees is quickly dwindling without us giving any significant help. But, one of the many questions we will explore here is: *do we rely on them?*
@@ -46,6 +47,26 @@ This study sets out to understand better understand some of the impacts on honey
 
 Outlined in this section is the data processes: [1] Importing, [2] Data Exploration, [3] Data manipulation (cleaning and tidying), and [4] Data Structuring. Please see [Appendix 1: Data Merging in MySQL](https://github.com/chrisgmartin/HoneyIShrunkTheBees/tree/master/Appendix) for more details on the data importing and manipulation techinques; the MySQL queries can also be found there. All of the data has been saved in the [GitHub folder: Data](https://github.com/chrisgmartin/HoneyIShrunkTheBees/tree/master/Data).
 
+### Package Setup
+
+Before we jump in, it's important to load any packages we might use. One option could be to load them as needed, however I ran into several problems with that as I require *dplyr* to be loaded after *plyr* because the reverse will not correctly implement the **group_by** and **summarise** features of the *dplyr* package. Secondly, I like to use the *pacman* package to load multiple packages since it simplifies the code and organizes it better in my opinion (see example below).
+
+```{r}
+pacman::p_load(choroplethr, choroplethrMaps, RODBC, stringr, dplyr, tidyr, inference)
+#library(choroplethr)
+#library(choroplethrMaps)
+#library(RODBC)
+#library(stringr)
+#library(dplyr)
+#library(tidyr)
+```
+
+Other data sets we will need come from the City University of New York's Masters of Data Analytics Program (CUNY MSDA Program) course IS 606 - Statistics and Probability for Data Analytics. These custom files assist in the 
+
+```{r}
+load(url("ADD GITHUB LINK TO THE RDATA PACKAGE FOR NC.RDATA"))
+```
+
 ### Data Import:
 
 The most important part of this analysis is obviously the data. Fortunately there is a plethora of open source data available from a variety of sources.
@@ -53,7 +74,6 @@ The most important part of this analysis is obviously the data. Fortunately ther
 After following some detailed [Stack Overflow](https://stackoverflow.com/questions/10292326/how-to-connect-r-with-mysql-or-how-to-install-rmysql-package) tips, I was able to connect to a local MySQL server that I created called 'HISP' (Honey, I Shrunk the Production). Please see the HIPS database sources in Appendix 1 and outlined below.
 
 ```{r}
-library(RODBC)
 con <- odbcConnect("hisp")
 sqlQuery(con, "use hisp")
 ```
@@ -124,7 +144,6 @@ Futher exploration of the data found several characters in the Value column, we'
 #honey_state2$Value[honey_state2$Value == " (D)"] <- as.integer(0)
 
 #Remove comma's from digits
-library(stringr)
 #honey_county2$Value <- str_replace_all(honey_county2$Value, "[:punct:]", "")
 #honey_state2$Value <- str_replace_all(honey_state2$Value, "[:punct:]", "")
 
@@ -163,6 +182,7 @@ honey_county2$CountyANSI <- as.numeric(paste0(honey_county2$StateANSI, honey_cou
 With the data loaded, and more-or-less cleaned, for viewing purposes it should be tidy'd a bit.
 
 ```{r}
+
 honey_county2 <- honey_county2 %>% 
   arrange(., DataItem) %>% 
   arrange(., State)
@@ -172,15 +192,14 @@ honey_state2 <- honey_state2 %>%
   arrange(., State)
 ```
 
-Another arrangement we will need is to re-format our table. Our table currently exists with each data item and each year each per state and/or each county having it's own row and value, but we actually need each data item to have it's own column so that a (for example) Alaska will have one row per year.
+Another arrangement we will need is to re-format our table. Our table currently exists with each data item and each year each per state and/or each county having it's own row and value, but we actually need each data item to have it's own column so that a (for example) Alaska will have one row per year. I'm also limiting the number of columns to 10, as it can be very long to display fully.
 
 ```{r}
 #install.packages('tidyr')
-library(tidyr)
 
 honey_county3 <- honey_county2[, c(2,4,5,6,7,9,10)] %>% 
   spread(., DataItem, Value)
-kable(head(honey_county3, 1))
+kable(head(honey_county3[,1:10], 1))
 
 #grouping needs to be applied at this level
 #because there are the additional columns for
@@ -191,7 +210,7 @@ honey_state2_tmp <- honey_state2 %>%
 
 honey_state3 <- honey_state2_tmp %>% 
   spread(., DataItem, Value)
-kable(head(honey_state3, 1))
+kable(head(honey_state3[,1:10], 1))
 ```
 
 Now, what do we do with pesky null values? We cleaned it up before, back when each data item had its own row, but now that the data items are rolled-up into their State/Year combinations we may have some rows where our data on the row to be analysed--**HONEY - PRODUCTION, MEASURED IN LB** for counties, and **HONEY - PRODUCTION, MEASURED IN LB / COLONY** for state level data--is null. Let's remove those data items, and change all null values (again) to zero.
@@ -217,13 +236,12 @@ length(unique(honey_county2$DataItem))
 nrow(honey_county2)
 length(unique(honey_state2$DataItem))
 nrow(honey_state2)
-
 ```
 
 There are a lot more data items (87 more to be exact) in the state set than in the county set, yet the county set has more variables/row (33,548).
 
 ```{r}
-kable(unique(honey_county$DataItem))
+unique(honey_county$DataItem)
 ```
 
 #### Data Check: Exploring Bee Colonies
@@ -277,7 +295,7 @@ Of the variables selected there are some I expect to have high positive correlat
 
 Another observation is the limited data in some categories. For example, at the state level for Honey Production in lb's, we have annual data from 1987 to 2015; however, in the county level we only have three years of data: 2002, 2007, and 2012. This limits our ability to really dive into the data.
 
-By the end of this analysis: 1I don't expect my personal expectations to bias my end results, in fact I hope I am pleasantly surprised my results in the end.
+By the end of this analysis: I don't expect my personal expectations to bias my end results, in fact I hope I am pleasantly surprised my results in the end.
 
 ## Part 3 - Exploratory data analysis:
 
@@ -285,34 +303,34 @@ Here we will try to explore some of our data and see if we can find any interest
 
 ### Map
 
-Perfect for our needs, the [ChoroplethR package](https://cran.r-project.org/web/packages/choroplethr/index.html) can help us visualize our data directly onto a map of the United States (it can do others countries too, but we only have data on the United States). The package can let us visualize at the state and county level, and has a some extra reference tables which could be useful such as the **state regions** table matching our (now cleaned up version of the) data:
+Perfect for our needs, the [ChoroplethR package](https://cran.r-project.org/web/packages/choroplethr/index.html) can help us visualize our data directly onto a map of the United States (it can do others countries too, but we only have data on the United States). The package can let us visualize at the state and county level, and has a some extra reference tables which could be useful such as the **state regions** table matching our (now cleaned up version of the) data. Here we run into another problem: the District of Columbia (DC). It is required in the chroplethr package yet our data does not include it. For that we'll have to add in DC as a state with the value of 0 when we map.
 
 ```{r}
-library(choroplethr)
-library(choroplethrMaps)
 data(state.regions)
 kable(head(state.regions))
 ```
 
 Let's take a look at how the number of honey bee colony operations with sales are distributed across the United States:
 
-```{r}
+```{r, warning=FALSE}
 HS_BeeCol <- honey_state2[which(honey_state2$DataItem == 'HONEY, BEE COLONIES - OPERATIONS WITH SALES'), c(4,12)]
 
 HS_HonPlot <- HS_BeeCol %>% 
   group_by(State) %>% 
-  summarize(value = sum(Value))
+  summarise(value = sum(Value))
 
 HS_HonPlot <- data.frame(region= state.regions$region, value= HS_HonPlot[match(state.regions$abb, HS_HonPlot$State), 2])
 
+
 state_choropleth(HS_HonPlot, title = "Honey Bee Colony Operations", legend = "Num of Colonies", num_colors = 1)
 ```
+
 
 Texas seems to have the highest number of bee colony operations, with California, Pennsylvania, and North Carolina following behing.
 
 As far as counties go, the map is a bit more segregated than expected with some counties having large quantities of bee colonies than others (black counties have no colonies). FOr example, most of California bee colony operations are in Southern California, around San Diego. Nevada and the central United States seems to have a lack of any honey bee operations, and Central Florida has a massive quantity.
 
-```{r}
+```{r, warning=FALSE}
 HC_BeeCol <- honey_county2[which(honey_county2$DataItem == 'HONEY, BEE COLONIES - OPERATIONS WITH SALES'), c(7,10)]
 
 colnames(HC_BeeCol) <- c('region', 'value')
@@ -326,7 +344,7 @@ county_choropleth(HC_HonPlot, title = "Honey Bee Colony Operations", legend = "N
 
 We can also look to see how much Honey Bee Production per Colony varies between states:
 
-```{r}
+```{r, warning=FALSE}
 HS_HoneyProdPer <- honey_state2[which(honey_state2$DataItem == 'HONEY - PRODUCTION, MEASURED IN LB / COLONY'), c(4,12)]
 
 HS_HonProdPlot <- HS_HoneyProdPer %>% 
@@ -342,7 +360,7 @@ It seems like there is a fairly even amount of stability in this, with the excep
 
 Let's also take a look at chemical expenditures:
 
-```{r}
+```{r, warning=FALSE}
 HS_ChemExp <- honey_state2[which(honey_state2$DataItem == 'CHEMICAL TOTALS - EXPENSE, MEASURED IN $'), c(4,12)]
 
 HS_ChemPlot <- HS_ChemExp %>% 
@@ -356,7 +374,7 @@ state_choropleth(HS_ChemPlot, title = "Chemical Expenditures", legend = "Amount 
 
 At the State level, expenditures on chemicals are surprisingly high. Details on what these chemicals are, unfortunately, are not here at the moment.
 
-```{r}
+```{r, warning=FALSE}
 HC_ChemExp <- honey_county2[which(honey_county2$DataItem == 'CHEMICAL TOTALS - EXPENSE, MEASURED IN $'), c(7,10)]
 
 colnames(HC_ChemExp) <- c('region', 'value')
@@ -371,7 +389,7 @@ county_choropleth(HC_ChemPlot, title = "Chemical Expenditures", legend = "Amount
 At the county level, almost all of California's expenditures are made right in the farming belt of Central California which is no surprise. What is surprising though is the concentration of expenditures compared to the rest of the United States. Some further research could be done here, as expenditures may mean where the expense was booked and not where the chemicals were distributed or used.
 
 
-```{r}
+```{r, warning=FALSE}
 HS_FertExp <- honey_state2[which(honey_state2$DataItem == 'FERTILIZER TOTALS, INCL LIME & SOIL CONDITIONERS - EXPENSE, MEASURED IN $'), c(4,12)]
 
 HS_FertPlot <- HS_FertExp %>% 
@@ -385,7 +403,7 @@ state_choropleth(HS_FertPlot, title = "Fertilizer Expenditures", legend = "Amoun
 
 Fertilizer expenditures (including Lime and Soil Conditioners) looks similar to the chemicals map, but Texas is expending more on fertilizers comparitively than they were on chemicals. At the county level, same story as Chemicals with such a large expense taking place in the Central California region.
 
-```{r}
+```{r, warning=FALSE}
 HC_FertExp <- honey_county2[which(honey_county2$DataItem == 'FERTILIZER TOTALS, INCL LIME & SOIL CONDITIONERS - EXPENSE, MEASURED IN $'), c(7,10)]
 
 colnames(HC_FertExp) <- c('region', 'value')
@@ -399,7 +417,7 @@ county_choropleth(HC_FertPlot, title = "Fertilizer Expenditures", legend = "Amou
 
 Horticulture sales are highly concentrated on the West Coast and Florida:
 
-```{r}
+```{r, warning=FALSE}
 HS_HortSales <- honey_state2[which(honey_state2$DataItem == 'HORTICULTURE TOTALS - SALES, MEASURED IN $'), c(4,12)]
 
 HS_HortPlot <- HS_HortSales %>% 
@@ -413,7 +431,7 @@ state_choropleth(HS_HortPlot, title = "Horticulture Sales", legend = "Amount of 
 
 But for our purposes what could be important in horticulture is the number of acres in production, rather than sales, and it seems like there is a more equal distribution of horticulture acres in production across the United States, with Calfornia and Florida having the lions share. I would venture to guess there is some cross over between horticulture production and chemical/fertilizer use, but that's another topic from another day.
 
-```{r}
+```{r, warning=FALSE}
 HS_HortProd <- honey_state2[which(honey_state2$DataItem == 'HORTICULTURE TOTALS, (EXCL CUT TREES), IN THE OPEN - ACRES IN PRODUCTION'), c(4,12)]
 
 HS_HortPlot2 <- HS_HortProd %>% 
@@ -427,7 +445,7 @@ state_choropleth(HS_HortPlot2, title = "Acres of Open Horticulture In Production
 
 At the county level, it appears as more acreage of horticulture in California is open in Southern California (vs Central California's farming belt), with some in the North West US and a bright blue dot in the center of Tennesee. There's also a peculiar lack of acreage straight down the middle of the United States.
 
-```{r}
+```{r, warning=FALSE}
 HC_HortProd <- honey_county2[which(honey_county2$DataItem == 'HORTICULTURE TOTALS, (EXCL CUT TREES), IN THE OPEN - ACRES IN PRODUCTION'), c(7,10)]
 
 colnames(HC_HortProd) <- c('region', 'value')
@@ -457,7 +475,7 @@ NEED TO DESCRIBE WHAT I WILL BE DOING IN THIS SECTION
 
 
 
-#### Summary Statistics
+### Summary Statistics
 
 Let's first check out some summary statistics on our selected data: "HONEY - PRODUCTION, MEASURED IN LB" or "HONEY - PRODUCTION, MEASURED IN LB / COLONY".
 
@@ -489,7 +507,7 @@ length(honey_state3$'HONEY - PRODUCTION, MEASURED IN LB / COLONY')
 
 With the length of our data, we can use this to create sample sizes useful for inference. Let's use a random sample size of 60 (randomly selected size).
 
-#### Determining the Status Quo: Expected Honey Production per Colony
+### Determining the Status Quo: Expected Honey Production per Colony
 
 One question we can begin to answer at this stage is: What should the "typical" amount of honey produced per colony be? Since we only have data on this category in the state set, we will focus our attention there. Also, we now know that our full data population has 1273 variables, and we've decided to use a random sample of 60. With this as our requirement, we can set up some of the ground work:
 
@@ -520,17 +538,141 @@ c(lower_vector[1], upper_vector[1])
 mean(population)
 ```
 
-As we can see, our population average falls right inside the inveral.
+As we can see, our population average falls right inside the inveral which is expected. Let's also see what a 90% CI would look like:
+
+```{r}
+lower_vector <- samp_mean - 1.645 * samp_sd / sqrt(n) 
+upper_vector <- samp_mean + 1.645 * samp_sd / sqrt(n)
+
+c(lower_vector[1], upper_vector[1])
+mean(population)
+```
+
+### Inference Testing: Expected Honey per Colony
+
+Let's also give a shot in testing our honey production against itself:
+
+-   Null Hypothesis: The amount of honey produced per colony of bees significantly shrunk from 1987 to 2015.
+
+-   Alternative Hypothesis: The amount of honey produced per colony of bees did not significantly shrink from 1987 to 2015
+
+We'll first need to know which column 'HONEY - PRODUCTION, MEASURED IN LB / COLONY' is stored in:
+
+```{r}
+which(colnames(honey_state3) =='HONEY - PRODUCTION, MEASURED IN LB / COLONY')
+```
+
+Let's use the same parameters as before with a slight change in that we will use a sample size of 25 instead of 50 (due to less variables, keeping our number of sample populations at 50) and calculate the both the 1987 average and 2015 average. The 2015 average will be used to evaulate our hypothesis.
+
+```{r}
+population2 <- honey_state3[,c(1,39)]
+population2 <- unlist(population2[population2$Year == 1987,2])
+
+population3 <- honey_state3[,c(1,39)]
+population3 <- unlist(population3[population3$Year == 2015,2])
+
+samp_mean <- rep(NA, 50)
+samp_sd <- rep(NA, 50)
+n <- 25
+
+for(i in 1:50){
+  samp <- sample(population2, n)
+  samp_mean[i] <- mean(samp)
+  samp_sd[i] <- sd(samp)
+}
+
+lower_vector <- samp_mean - 1.96 * samp_sd / sqrt(n) 
+upper_vector <- samp_mean + 1.96 * samp_sd / sqrt(n)
+
+c(lower_vector[1], upper_vector[1])
+mean(population2)
+mean(population3)
+```
+
+It appears that it is a very close call. Running the simulation over and over yields different results (naturally, as it is a *random* sample) with some results showing a fit within the confidence interval, and some results showing just outside of the interval. In either case I believe it is too close to call, and we therefore fail to reject the null hypothesis. In other words, there could be a significant drop in honey production throughout the years.
+
+All of this can more easily be summarized used the packages from the IS 606 Course. Solving for Confidence Intervals:
+
+```{r}
+inference(y = population, est = "mean", type = "ci", null = 0, alternative = "twosided", method = "theoretical")
+inference(y = population2, est = "mean", type = "ci", null = 0, alternative = "twosided", method = "theoretical")
+inference(y = population3, est = "mean", type = "ci", null = 0, alternative = "twosided", method = "theoretical")
+```
+
+To solve for hypothesis tests, I'll combine the two smaller populations (for years 1987 and 2015) and see how they compare:
+
+```{r}
+population4 <- honey_state3[,c(1,39)]
+population4 <- population4[population4$Year == 1987,1:2]
+population5 <- honey_state3[,c(1,39)]
+population5 <- population5[population5$Year == 2015,1:2]
+population6 <- bind_rows(population4, population5)
+colnames(population6) <- c("Year","Value")
+
+```
+
+To run the hypothesis tests:
+
+```{r}
+inference(y = population6$Value, x = population6$Year, est = "mean", type = "ht", null = 0, alternative = "twosided", method = "theoretical")
+```
+
+As the results of this inference test for the hypothesis test goes, we again fail to reject the null since the p-value is fairly large (>0.05).
 
 
-#### Inference
+### Linear Regression
 
 
 
 
 
 
-## Part 5 - Conclusion: 
+
+
+
+
+
+
+
+
+
+
+
+
+### Multiple Linear Regression
+
+
+
+
+
+
+
+#### Full Model
+
+
+
+#### Backward Elimination
+
+
+
+#### Forward Selection
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Part 5 - Conclusion: The Plight of the Bumblebees
 
 
 
