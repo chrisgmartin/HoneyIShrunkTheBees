@@ -52,7 +52,7 @@ Outlined in this section is the data processes: [1] Importing, [2] Data Explorat
 Before we jump in, it's important to load any packages we might use. One option could be to load them as needed, however I ran into several problems with that as I require *dplyr* to be loaded after *plyr* because the reverse will not correctly implement the **group_by** and **summarise** features of the *dplyr* package. Secondly, I like to use the *pacman* package to load multiple packages since it simplifies the code and organizes it better in my opinion (see example below).
 
 ```{r}
-pacman::p_load(choroplethr, choroplethrMaps, RODBC, stringr, dplyr, tidyr, inference)
+pacman::p_load(choroplethr, choroplethrMaps, RODBC, stringr, dplyr, tidyr, inference, plotly)
 #library(choroplethr)
 #library(choroplethrMaps)
 #library(RODBC)
@@ -505,7 +505,39 @@ length(honey_county3$'HONEY - PRODUCTION, MEASURED IN LB')
 length(honey_state3$'HONEY - PRODUCTION, MEASURED IN LB / COLONY')
 ```
 
-With the length of our data, we can use this to create sample sizes useful for inference. Let's use a random sample size of 60 (randomly selected size).
+Another intersting visual we can look at in line with this is to see how the production varies per state and year using the **plotly** package. We'll first need to know which column 'HONEY - PRODUCTION, MEASURED IN LB / COLONY' is stored in:
+
+```{r}
+which(colnames(honey_state3) =='HONEY - PRODUCTION, MEASURED IN LB / COLONY')
+```
+
+Which is column 39:
+
+```{r}
+StateProd <- honey_state3[,c(2,39)] %>% 
+  group_by(State)
+colnames(StateProd) <- c("State","value")
+StateProd <- StateProd %>% 
+  group_by(State) %>% 
+  summarise(value = sum(value))
+plot_ly(StateProd, x = State, y = value, text = paste("State: ", State), mode = "markers", color = value, size = value)
+```
+
+There seems to be a big discrepency between states and how much honey is produced in each. Interesting.
+
+```{r}
+StateProd2 <- honey_state3[,c(1,39)] %>% 
+  group_by(Year)
+colnames(StateProd2) <- c("Year","value")
+StateProd2 <- StateProd2 %>% 
+  group_by(Year) %>% 
+  summarise(value = sum(value))
+plot_ly(StateProd, x = Year, y = value, text = paste("Year: ", Year), mode = "markers", color = value, size = value)
+```
+
+I think this graph is unmistakable.
+
+Moving forward and looking back, with the length of our data we can create sample sizes useful for inference. Let's use a random sample size of 60 (randomly selected size).
 
 ### Determining the Status Quo: Expected Honey Production per Colony
 
@@ -556,11 +588,6 @@ Let's also give a shot in testing our honey production against itself:
 
 -   Alternative Hypothesis: The amount of honey produced per colony of bees did not significantly shrink from 1987 to 2015
 
-We'll first need to know which column 'HONEY - PRODUCTION, MEASURED IN LB / COLONY' is stored in:
-
-```{r}
-which(colnames(honey_state3) =='HONEY - PRODUCTION, MEASURED IN LB / COLONY')
-```
 
 Let's use the same parameters as before with a slight change in that we will use a sample size of 25 instead of 50 (due to less variables, keeping our number of sample populations at 50) and calculate the both the 1987 average and 2015 average. The 2015 average will be used to evaulate our hypothesis.
 
@@ -617,22 +644,51 @@ To run the hypothesis tests:
 inference(y = population6$Value, x = population6$Year, est = "mean", type = "ht", null = 0, alternative = "twosided", method = "theoretical")
 ```
 
-As the results of this inference test for the hypothesis test goes, we again fail to reject the null since the p-value is fairly large (>0.05).
-
+As the results of this inference test for the hypothesis test goes, we again fail to reject the null since the p-value is fairly large (>0.05). Failing to reject the null in this case means that we cannot, at this point, determine that there was not a significant change in the amount of honey produced per each colony of bees from 1987 to 2015. (Please keep in mind the double negative, they can get confusing--I'm simply saying that there may in fact have been a significant change).
 
 ### Linear Regression
 
+WIth linear regression, I'm interested in seeing the linear relationship between honey produced per colony and another statistic. But how to pick one... We could use a random number:
 
+```{r}
+rando <- sample(ncol(honey_state3), 1)
+rando
+```
 
+But with so many different Data Items in our data set we're likely to get one that's fairly riduculous (I'm looking at you **HORTICULTURE TOTALS, WHOLESALE, LANDSCAPE REDISTRIBUTION YARDS - SALES, MEASURED IN $**!) Let's use one we've looked at before: **HORTICULTURE TOTALS, (EXCL CUT TREES), IN THE OPEN - ACRES IN PRODUCTION**.
 
+First we can see if the relationship appears linear. I'm going to create a new data frame and remove all null values as well (changing them to zero will skew our data):
 
+```{r}
+which(colnames(honey_state3) =='CHEMICAL TOTALS - EXPENSE, MEASURED IN $')
+Honey_Chems <- honey_state3[,c(1,2,3,39)]
+colnames(Honey_Chems) <- c("Year", "State", "Chems","Honey")
+Honey_Chems <- Honey_Chems[complete.cases(Honey_Chems[,3:4]),]
 
+#calculate correlation
+cor(Honey_Chems$Honey, Honey_Chems$Chems)
+```
 
+We can also check it on a plot:
 
+```{r}
+ggplot(Honey_Chems, aes(x=Chems, y=Honey)) + geom_line()
+```
 
+But we don't learn a whole lot other than there seems to be a higher grouping in the low side of Chemical spending and lbs of honey production per colony.
 
+```{r}
+hc1 <- lm(Chems ~ Honey, data=Honey_Chems)
+summary(hc1)
+plot(hc1$residuals ~ Honey_Chems$Honey)
+abline(h=0, lty=3)
+```
 
-
+```{r}
+hist(hc1$residuals)
+qqnorm(hc1$residuals)
+qqline(hc1$residuals)
+```
 
 
 
