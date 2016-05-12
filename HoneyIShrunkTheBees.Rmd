@@ -61,10 +61,10 @@ pacman::p_load(choroplethr, choroplethrMaps, RODBC, stringr, dplyr, tidyr, infer
 #library(tidyr)
 ```
 
-Other data sets we will need come from the City University of New York's Masters of Data Analytics Program (CUNY MSDA Program) course IS 606 - Statistics and Probability for Data Analytics. These custom files assist in the 
+Other data sets we will need come from the City University of New York's Masters of Data Analytics Program (CUNY MSDA Program) course IS 606 - Statistics and Probability for Data Analytics. These custom files assist in the linear regression as it includes a very hand function: 
 
 ```{r}
-load(url("ADD GITHUB LINK TO THE RDATA PACKAGE FOR NC.RDATA"))
+load(url("https://github.com/chrisgmartin/HoneyIShrunkTheBees/raw/master/Additional/nc.RData"))
 ```
 
 ### Data Import:
@@ -174,6 +174,7 @@ But we're not done yet! ANSI codes need to be in a specific order for mapping. T
 #honey_county2$StateANSI2 <- sprintf("%02d", honey_county2$StateANSI)
 #honey_state2$StateANSI2 <- sprintf("%02d", honey_state2$StateANSI)
 honey_county2$CountyANSI <- sprintf("%03d", honey_county2$CountyANSI)
+
 honey_county2$CountyANSI <- as.numeric(paste0(honey_county2$StateANSI, honey_county2$CountyANSI))
 ```
 
@@ -532,7 +533,7 @@ colnames(StateProd2) <- c("Year","value")
 StateProd2 <- StateProd2 %>% 
   group_by(Year) %>% 
   summarise(value = sum(value))
-plot_ly(StateProd, x = Year, y = value, text = paste("Year: ", Year), mode = "markers", color = value, size = value)
+plot_ly(StateProd2, x = Year, y = value, text = paste("Year: ", Year), mode = "markers", color = value, size = value)
 ```
 
 I think this graph is unmistakable.
@@ -635,7 +636,6 @@ population5 <- honey_state3[,c(1,39)]
 population5 <- population5[population5$Year == 2015,1:2]
 population6 <- bind_rows(population4, population5)
 colnames(population6) <- c("Year","Value")
-
 ```
 
 To run the hypothesis tests:
@@ -655,34 +655,47 @@ rando <- sample(ncol(honey_state3), 1)
 rando
 ```
 
-But with so many different Data Items in our data set we're likely to get one that's fairly riduculous (I'm looking at you **HORTICULTURE TOTALS, WHOLESALE, LANDSCAPE REDISTRIBUTION YARDS - SALES, MEASURED IN $**!) Let's use one we've looked at before: **HORTICULTURE TOTALS, (EXCL CUT TREES), IN THE OPEN - ACRES IN PRODUCTION**.
+But with so many different Data Items in our data set we're likely to get one that's fairly riduculous (I'm looking at you **HORTICULTURE TOTALS, WHOLESALE, LANDSCAPE REDISTRIBUTION YARDS - SALES, MEASURED IN $**!) Let's use one could be interesting to see: **HONEY, BEE COLONIES - INVENTORY, MEASURED IN COLONIES**.
 
-First we can see if the relationship appears linear. I'm going to create a new data frame and remove all null values as well (changing them to zero will skew our data):
+First we'll take a look at the summary statistics on this new field, then we can see if the relationship appears linear. I'm going to create a new data frame and remove all null values as well (changing them to zero will skew our data):
 
 ```{r}
-which(colnames(honey_state3) =='CHEMICAL TOTALS - EXPENSE, MEASURED IN $')
-Honey_Chems <- honey_state3[,c(1,2,3,39)]
-colnames(Honey_Chems) <- c("Year", "State", "Chems","Honey")
-Honey_Chems <- Honey_Chems[complete.cases(Honey_Chems[,3:4]),]
+which(colnames(honey_state3) =='HONEY, BEE COLONIES - INVENTORY, MEASURED IN COLONIES')
+Honey_Colonies <- honey_state3[,c(1,2,41,39)]
+colnames(Honey_Colonies) <- c("Year", "State", "Colonies","Honey")
+Honey_Colonies <- Honey_Colonies[complete.cases(Honey_Colonies[,3:4]),]
 
-#calculate correlation
-cor(Honey_Chems$Honey, Honey_Chems$Chems)
+summary(Honey_Colonies$Colonies)
+hist(Honey_Colonies$Colonies)
 ```
+
+It looks like the distribution is much tighter in this set of data.
+
+```{r}
+#calculate correlation
+cor(Honey_Colonies$Honey, Honey_Colonies$Colonies)
+```
+
+There is a correlation of .2987, indicating a positive correlation but not an entirely strong correlation.
 
 We can also check it on a plot:
 
 ```{r}
-ggplot(Honey_Chems, aes(x=Chems, y=Honey)) + geom_line()
+ggplot(Honey_Colonies, aes(x=Colonies, y=Honey)) + geom_line()
 ```
 
-But we don't learn a whole lot other than there seems to be a higher grouping in the low side of Chemical spending and lbs of honey production per colony.
+But we don't learn a whole lot other than there seems to be a higher spread at log 8-9 colonies and a majority of the grouping at log 3-4 honey production per colony.
+
+More interestingly (and more usefully) if we plot the residuals with a we can see a much clearer trend of the fit between these two variables:
 
 ```{r}
-hc1 <- lm(Chems ~ Honey, data=Honey_Chems)
+hc1 <- lm(Colonies ~ Honey, data=Honey_Colonies)
 summary(hc1)
-plot(hc1$residuals ~ Honey_Chems$Honey)
+plot(hc1$residuals ~ Honey_Colonies$Honey)
 abline(h=0, lty=3)
 ```
+
+What we see is a fairly even difference in the residuals (showing no evident patterns), indicating that it could be reasonable to use a linear regression to fit these two data points. There could be interest at the high end of the chart at log 5 Honey Produced, so we can take a look at another two types of charts: histograms and a normal probability plot of the residuals.
 
 ```{r}
 hist(hc1$residuals)
@@ -690,38 +703,67 @@ qqnorm(hc1$residuals)
 qqline(hc1$residuals)
 ```
 
+It appears that the nearly normal residuals condition passes, as does the constant variabilty condition (despite slight curvature) with an "iffy" result for the linearity of the plot indicating a possible but an unclear positive relationship, however I don't believe that it passes the condition for independent observations. These four conditions are generally required for fitting a least squares line. The conditions for independent observations warn of applying a linear regression on a time series, which this certainly is. With the warning in hand, ignoring the independence condition, we can identify the least squares line as (from our **lm** summary:
 
+\[
+  \hat{lbs of honey produced per colony} = -7.10151 + 0.74615 * colonies
+\]
 
+Note: Remember that all of these data points are in log form, and the data is time series so a linear regression may not be the best estimator.
 
-
+Linear Regression Conclusion: What we see is that the positive linear relationship between the amount of honey produced per colony in lb's and the number of bee colonies. This positive correlation indicates that for every increase in colony (log) there is a corresponding increase in the amount of honey produced per colony and the number of colonies. *TL;DR: More honey bee colonies: the more honey each colony produces.** Combining this with our previous analysis of the number of bee colonies, we could be seeing an exponential decline in honey.
 
 ### Multiple Linear Regression
 
+With our newfound understanding of the relationship between honey produced per colony and the number of colonies, we are no closer to answering our ultimate question: do we really rely on the bees?
 
-
-
-
-
+There are three ways we can perform the regression analysis: [1] the full model, [2] the backward elimination model, and [3] the forward selection model. To save time, each of these models wwere run on the backend with the backup data and process in a seperate file stored in our GitHub folder for [Appendix Two: Multiple Regression Analysis](ADD LINK)
 
 #### Full Model
 
+The full model uses every available explanatory variable to attempt to predict the variable at hand. As our state dataset includes an intimidating 108 different variables, using the full model is an incredibly messy task. For ease, we'll switch to the county dataset which includes "only" 21 DataItem's, removing all incomplete cases, and look at total production measured in LB (rather than production per colony. Note that this case requires us to force null values to 0 despite my previous incling not to do so, after removing cases with incomplete results (N/A's or Null Values) for Honey Produced, because there are simply not enough data points without null values in one of the many columns (there are zero, in fact):
 
+```{r}
+HoneyC_FullModel <- honey_county3[,c(1,5,6:26)]
+colnames(HoneyC_FullModel) <- c("Year", "CountyANSI", "ChemExp", "ChemOps", "CropOps", "CropSales", "CropOrgOps", "CropOrgSales", "FertExp", "FertOps", "HoneyOpsProd", "HoneyOpsSales", "HoneyProd", "HoneySales", "HoneyColOps", "HoneyColSales", "HortExcTVSTOps", "HortExcTVSTSales", "HortExcTAcres", "HortExcTIrgAcres", "HortExcTIrgOps", "HortUndProt")
+
+#return only complete cases
+HoneyC_FullModel <- HoneyC_FullModel[complete.cases(HoneyC_FullModel[,13]),]
+HoneyC_FullModel[is.na(HoneyC_FullModel)] <- 0
+
+m_full <- lm(HoneyProd ~ ChemExp + ChemOps + CropOps + CropSales + CropOrgOps + CropOrgSales + FertExp + FertOps + HoneyOpsProd + HoneyOpsSales + HoneySales + HoneyColOps + HoneyColSales + HortExcTVSTOps + HortExcTVSTSales + HortExcTAcres + HortExcTIrgAcres + HortExcTIrgOps + HortUndProt, data = HoneyC_FullModel)
+summary(m_full)
+```
+
+This full model can give us a model that is simply too cumbersome for casual output, but the main takeaway can be our Adjusted R-squared of 0.4322. This value we can use to compare how effective the model is likely to be against our other final models: backward elimination and forward selection.
 
 #### Backward Elimination
 
+With backward elimination, we start with the full model and move backward by eliminating those variables with the lowest Adjusted R-squared until we get to our maximized Adjusted R-squared model. To save time, I've run this on the backend on Appendix Two, and show the results here. In fact, there was no increase in the Adjusted R-squared so the backward model looks strikingly similar to the full model, except that we've ruled out any valuable impact to our model by eliminating the number of Crop Organizations with Operations and the number of Honey Colonies with Operations.
 
+```{r}
+m_backward <- lm(HoneyProd ~ ChemExp + ChemOps + CropOps + CropSales + CropOrgSales + FertExp + FertOps + HoneyOpsProd + HoneyOpsSales + HoneySales + HoneyColSales + HortExcTVSTOps + HortExcTVSTSales + HortExcTAcres + HortExcTIrgAcres + HortExcTIrgOps + HortUndProt, data = HoneyC_FullModel)
+summary(m_backward)
+```
+
+Our new best model came from the Backward Elimination method and gave us an Adjusted R-squared of 0.4323.
 
 #### Forward Selection
 
+It turns out, our final model is the same for backward elimination and forward selection. This isn't a surprise exactly, but it gives us some understanding of what factors relate to one another.
+
+```{r}
+m_forward <- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales + ChemExp + HoneyOpsSales + CropOrgSales + HoneyOpsProd + HortExcTAcres + ChemOps + FertOps + FertExp + HortExcTIrgOps + CropSales + HortExcTVSTOps + HortExcTIrgAcres + CropOps + HortExcTVSTSales, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+#### Checking Model Assumptions
 
 
-
-
-
-
-
-
-
+```{r}
+m_final <- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales + ChemExp + HoneyOpsSales + CropOrgSales + HoneyOpsProd + HortExcTAcres + ChemOps + FertOps + FertExp + HortExcTIrgOps + CropSales + HortExcTVSTOps + HortExcTIrgAcres + CropOps + HortExcTVSTSales, data = HoneyC_FullModel)
+summary(m_final)
+```
 
 
 
@@ -756,6 +798,13 @@ qqline(hc1$residuals)
 ## Appendix (optional):
 
 Appendix 1: Data Merging in MySQL: [MySQL Query](https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/HoneyIShrunkTheBees.sql) and [Appendix 1 RMarkdown write-up](https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/Appendix/Appendix1-DataMySQL.Rmd)
+
+[Appendix Two: Multiple Regression Analysis](ADD LINK)
+with tables being exported:
+
+```{r}
+#write.csv(HoneyC_FullModel, file = 'D:/GitHub/HoneyIShrunkTheBees/Appendix/HoneyC_FullModel.csv')
+```
 
 ## Special Thanks
 

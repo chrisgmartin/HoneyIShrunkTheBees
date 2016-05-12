@@ -1,0 +1,260 @@
+---
+title: "Appendix Two: HISP Multiple Regression Analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Appendix 2: Multiple Regression Analysis:
+
+For our multiple regression analysis, we evaluate three different types of models: [1] the full model, [2] backward elimination, and [3] forward selection. This Appendix is the process for each of these three steps and 
+
+### Loading packages and essential data:
+
+We need to load the data set that we will use for this analysis first (of course), which came from our main analysis file [Honey, I Shrunk the Bees](ADD LINK) and exported to GitHub:
+
+ADD LINK to datasets!
+```{r}
+#ADD LINK
+
+```
+
+Another data set we will need comes from the City University of New York's Masters of Data Analytics Program (CUNY MSDA Program) course IS 606 - Statistics and Probability for Data Analytics. These custom files assist in the linear regression as it includes a very hand function:
+
+```{r}
+load(url("https://github.com/chrisgmartin/HoneyIShrunkTheBees/raw/master/Additional/nc.RData"))
+```
+
+
+### Data Import:
+
+Simply enough, each .CSV was imported into a schema (titled **HISP**) using the MySQL data import wizard.
+
+#### Full Model:
+
+The full model uses every available explanatory variable to attempt to predict the variable at hand. As our state dataset includes an intimidating 108 different variables, using the full model is an incredibly messy task. For ease, we'll switch to the county dataset which includes "only" 21 DataItem's, removing all incomplete cases, and look at total production measured in LB (rather than production per colony. Note that this case requires us to force null values to 0 despite my previous incling not to do so, after removing cases with incomplete results (N/A's or Null Values) for Honey Produced, because there are simply not enough data points without null values in one of the many columns (there are zero, in fact):
+
+```{r}
+HoneyC_FullModel <- honey_county3[,c(1,5,6:26)]
+colnames(HoneyC_FullModel) <- c("Year", "CountyANSI", "ChemExp", "ChemOps", "CropOps", "CropSales", "CropOrgOps", "CropOrgSales", "FertExp", "FertOps", "HoneyOpsProd", "HoneyOpsSales", "HoneyProd", "HoneySales", "HoneyColOps", "HoneyColSales", "HortExcTVSTOps", "HortExcTVSTSales", "HortExcTAcres", "HortExcTIrgAcres", "HortExcTIrgOps", "HortUndProt")
+
+#return only complete cases
+HoneyC_FullModel <- HoneyC_FullModel[complete.cases(HoneyC_FullModel[,13]),]
+HoneyC_FullModel[is.na(HoneyC_FullModel)] <- 0
+
+m_full <- lm(HoneyProd ~ ChemExp + ChemOps + CropOps + CropSales + CropOrgOps + CropOrgSales + FertExp + FertOps + HoneyOpsProd + HoneyOpsSales + HoneySales + HoneyColOps + HoneyColSales + HortExcTVSTOps + HortExcTVSTSales + HortExcTAcres + HortExcTIrgAcres + HortExcTIrgOps + HortUndProt, data = HoneyC_FullModel)
+summary(m_full)
+```
+
+This full model can give us a model that is simply too cumbersome for casual output, but the main takeaway can be our Adjusted R-squared of 0.4322. This value we can use to compare how effective the model is likely to be against our other final models: backward elimination and forward selection.
+
+#### Backward Elimination:
+
+With backward elimination, we start with the full model and move backward by eliminating those variables with the lowest Adjusted R-squared until we get to our maximized Adjusted R-squared model. From the full model, we saw that explantory variable with a high Pr(>|t|) is CropOrgOps: Crop Organizations with Operations. We'll start by eliminating that from our model first:
+
+```{r}
+m_backward <- lm(HoneyProd ~ ChemExp + ChemOps + CropOps + CropSales + CropOrgSales + FertExp + FertOps + HoneyOpsProd + HoneyOpsSales + HoneySales + HoneyColOps + HoneyColSales + HortExcTVSTOps + HortExcTVSTSales + HortExcTAcres + HortExcTIrgAcres + HortExcTIrgOps + HortUndProt, data = HoneyC_FullModel)
+summary(m_backward)
+```
+
+There was no change to the Adjusted R-squared so we can move foward without just as simply as we can with it. Let's remove another one, HoneyColOps: the number of Honey Colonies with Operations.
+
+```{r}
+m_backward <- lm(HoneyProd ~ ChemExp + ChemOps + CropOps + CropSales + CropOrgSales + FertExp + FertOps + HoneyOpsProd + HoneyOpsSales + HoneySales + HoneyColSales + HortExcTVSTOps + HortExcTVSTSales + HortExcTAcres + HortExcTIrgAcres + HortExcTIrgOps + HortUndProt, data = HoneyC_FullModel)
+summary(m_backward)
+```
+
+Our Adjusted R-squared increased ever so slightly, but increased none-the-less so we'll keep it out. Let's remove another one, HortExcTVSTSales: Horticulture Sales in $'s with the exception of Trees, Vegetable Seeds, and Transplants:
+
+```{r}
+m_backward <- lm(HoneyProd ~ ChemExp + ChemOps + CropOps + CropSales + CropOrgSales + FertExp + FertOps + HoneyOpsProd + HoneyOpsSales + HoneySales + HoneyColSales + HortExcTVSTOps + HortExcTAcres + HortExcTIrgAcres + HortExcTIrgOps + HortUndProt, data = HoneyC_FullModel)
+summary(m_backward)
+```
+
+A slight decrease, so we'll keep that in our model and try another: HortExcTAcres.
+
+```{r}
+m_backward <- lm(HoneyProd ~ ChemExp + ChemOps + CropOps + CropSales + CropOrgSales + FertExp + FertOps + HoneyOpsProd + HoneyOpsSales + HoneySales + HoneyColSales + HortExcTVSTOps + HortExcTVSTSales + HortExcTIrgAcres + HortExcTIrgOps + HortUndProt, data = HoneyC_FullModel)
+summary(m_backward)
+```
+
+Another slight drop. Another try: CropSales
+
+```{r}
+m_backward <- lm(HoneyProd ~ ChemExp + ChemOps + CropOps + CropOrgSales + FertExp + FertOps + HoneyOpsProd + HoneyOpsSales + HoneySales + HoneyColSales + HortExcTVSTOps + HortExcTVSTSales + HortExcTAcres + HortExcTIrgAcres + HortExcTIrgOps + HortUndProt, data = HoneyC_FullModel)
+summary(m_backward)
+```
+
+Another drop. In fact, after removing each of these variables once, there was no increase in the Adjusted R-squared so the backward model looks strikingly similar to the full model, except that we've ruled out any valuable impact to our model by eliminating the number of Crop Organizations with Operations and the number of Honey Colonies with Operations ending with an Adjusted R-squared of 0.4323.
+
+```{r}
+m_backward <- lm(HoneyProd ~ ChemExp + ChemOps + CropOps + CropSales + CropOrgSales + FertExp + FertOps + HoneyOpsProd + HoneyOpsSales + HoneySales + HoneyColSales + HortExcTVSTOps + HortExcTVSTSales + HortExcTAcres + HortExcTIrgAcres + HortExcTIrgOps + HortUndProt, data = HoneyC_FullModel)
+summary(m_backward)
+```
+
+#### Forward Selection:
+
+In forward selection, the opposite of backward elimination occures: we add items until our Adjusted R-squared is higher than it was in the previous model.
+
+We start with the start, and end with the end. Here are a few examples:
+
+```{r}
+m_forward <- lm(HoneyProd ~ ChemExp, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+With ChemExp included, our Adjusted R-squared is 0.11
+
+```{r}
+m_forward <- lm(HoneyProd ~ ChemOps, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+With ChemOps included, our Adjusted R-squared is 0.05508. ChemExp is a better starting point.
+
+
+```{r}
+m_forward <- lm(HoneyProd ~ CropOps, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+With CropOps included, our Adjusted R-squared is 0.05096 ChemExp is again a better starting point.
+
+
+```{r}
+m_forward <- lm(HoneyProd ~ HortUndProt, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+With HoneySales included, our Adjusted R-squared is 0.3084. HoneyProd is best starting point. We can add from here with a couple more examples:
+
+```{r}
+m_forward <- lm(HoneyProd ~ HortUndProt + ChemExp, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+Adding ChemExp to our model, we get an decreased Adjusted R-squared of 0.1213. This item should not be added at this point.
+
+```{r}
+m_forward <- lm(HoneyProd ~ HortUndProt + HoneySales, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+Adding HoneySales to our model, we get an increased Adjusted R-squared of 0.3316. This item should be added at this point. Let's see if we can add a third explanatory variable:
+
+
+```{r}
+m_forward <- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+Adding HoneyColSales to our model our Adjusted R-squared goes up to 0.369. It can be added and we can search for a fourth variable.
+
+```{r}
+m_forward <- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales + ChemExp, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+Adding ChemExp to our model our Adjusted R-squared goes up to 0.3936. It can be added and we can search for a fifth variable.
+
+```{r}
+m_forward <- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales + ChemExp + HoneyOpsSales, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+Adding HoneyOpsSales to our model our Adjusted R-squared goes up to 0.4036. It can be added and we can search for a sixth variable.
+
+```{r}
+m_forward <- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales + ChemExp + HoneyOpsSales + CropOrgSales, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+Adding CropOrgSales to our model our Adjusted R-squared goes up to 0.4113. It can be added and we can search for a seventh variable.
+
+```{r}
+m_forward <- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales + ChemExp + HoneyOpsSales + CropOrgSales + HoneyOpsProd, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+Adding HoneyOpsProd to our model our Adjusted R-squared goes up to 0.4164. It can be added and we can search for an eigth variable.
+
+```{r}
+m_forward <- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales + ChemExp + HoneyOpsSales + CropOrgSales + HoneyOpsProd + HortExcTAcres, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+Adding HortExcTAcres to our model our Adjusted R-squared goes up to 0.4182. It can be added and we can search for a ninth variable.
+
+```{r}
+m_forward <- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales + ChemExp + HoneyOpsSales + CropOrgSales + HoneyOpsProd + HortExcTAcres + ChemOps, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+Adding ChemOps to our model our Adjusted R-squared goes up to 0.4197. It can be added and we can search for a tenth variable.
+
+```{r}
+m_forward <- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales + ChemExp + HoneyOpsSales + CropOrgSales + HoneyOpsProd + HortExcTAcres + ChemOps + FertOps, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+Adding FertOps to our model our Adjusted R-squared goes up to 0.4283. It can be added and we can search for an eleventh variable.
+
+```{r}
+m_forward <- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales + ChemExp + HoneyOpsSales + CropOrgSales + HoneyOpsProd + HortExcTAcres + ChemOps + FertOps + FertExp, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+Adding FertExp to our model our Adjusted R-squared goes up to 0.4283. It can be added and we can search for a twelth variable.
+
+```{r}
+m_forward <- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales + ChemExp + HoneyOpsSales + CropOrgSales + HoneyOpsProd + HortExcTAcres + ChemOps + FertOps + FertExp + HortExcTIrgOps, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+Adding HortExcTIrgOps to our model our Adjusted R-squared goes up to 0.4301. It can be added and we can search for a thirteenth variable.
+
+```{r}
+m_forward <- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales + ChemExp + HoneyOpsSales + CropOrgSales + HoneyOpsProd + HortExcTAcres + ChemOps + FertOps + FertExp + HortExcTIrgOps + CropSales, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+Adding CropSales to our model our Adjusted R-squared goes up to 0.4307. It can be added and we can search for a fourthteenth variable.
+
+```{r}
+m_forward <- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales + ChemExp + HoneyOpsSales + CropOrgSales + HoneyOpsProd + HortExcTAcres + ChemOps + FertOps + FertExp + HortExcTIrgOps + CropSales + HortExcTVSTOps, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+Adding HortExcTVSTOps to our model our Adjusted R-squared goes up to 0.431. It can be added and we can search for a fifthteenth variable.
+
+```{r}
+m_forward <- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales + ChemExp + HoneyOpsSales + CropOrgSales + HoneyOpsProd + HortExcTAcres + ChemOps + FertOps + FertExp + HortExcTIrgOps + CropSales + HortExcTVSTOps + HortExcTIrgAcres, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+Adding HortExcTIrgAcres to our model our Adjusted R-squared goes up to 0.4316. It can be added and we can search for a sixteenth variable.
+
+```{r}
+m_forward <- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales + ChemExp + HoneyOpsSales + CropOrgSales + HoneyOpsProd + HortExcTAcres + ChemOps + FertOps + FertExp + HortExcTIrgOps + CropSales + HortExcTVSTOps + HortExcTIrgAcres + CropOps, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+Adding CropOps to our model our Adjusted R-squared goes up to 0.4321. It can be added and we can search for a seventeenth variable.
+
+```{r}
+m_forward <- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales + ChemExp + HoneyOpsSales + CropOrgSales + HoneyOpsProd + HortExcTAcres + ChemOps + FertOps + FertExp + HortExcTIrgOps + CropSales + HortExcTVSTOps + HortExcTIrgAcres + CropOps + HortExcTVSTSales, data = HoneyC_FullModel)
+summary(m_forward)
+```
+
+Adding HortExcTVSTSales to our model our Adjusted R-squared goes up to 0.4323. It can be added and we finish our final forward selection model with an Adjusted R-Squared of 0.4323.
+
+### Final Model Selection
+
+It turns out, our final model is the same for backward elimination and forward selection. This isn't a surprise exactly, but it gives us some understanding of what factors relate to one another.
+
+```{r}
+m_final <- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales + ChemExp + HoneyOpsSales + CropOrgSales + HoneyOpsProd + HortExcTAcres + ChemOps + FertOps + FertExp + HortExcTIrgOps + CropSales + HortExcTVSTOps + HortExcTIrgAcres + CropOps + HortExcTVSTSales, data = HoneyC_FullModel)
+summary(m_final)
+```
