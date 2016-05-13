@@ -1,0 +1,134 @@
+---
+title: "Honey, I Shrunk the Bees!"
+author: Chris G Martin
+date: May 15, 2016
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+#pacman::p_load(choroplethr, choroplethrMaps, RODBC, stringr, dplyr, tidyr, inference, plotly)
+#load(url("https://github.com/chrisgmartin/HoneyIShrunkTheBees/raw/master/Additional/nc.RData"))
+```
+
+    logo: http://www.thefarmingpodcast.com/wp-content/uploads/2014/01/honey-bee-swarm-removal.jpg
+
+## Title Page
+
+![The Bees](http://www.thefarmingpodcast.com/wp-content/uploads/2014/01/honey-bee-swarm-removal.jpg)
+
+
+## The Long and Lonely Road
+
+- Bees are our friends: we love 'em yet we don't help 'em
+    - The most **effective** polinators on the planet
+    - Our history dates back over 8,000 years ago
+    
+- Honey helps our economy and our health
+    - Used in desserts, breads, barbecues, mustards, jellies and ointment treatments
+    - Loaded with antibacterial and antifungal properties
+    - Can treat dandruff, is used in energy drinks, and can treat wounds and burns
+    - Can also help fight local allergies
+
+## The Long and Lonely Road
+
+- Bees are our friends: we love 'em yet we don't help 'em
+    - The most **effective** polinators on the planet
+    - Our history dates back over 8,000 years ago
+    
+- Honey helps our economy and our health
+    - Used in desserts, breads, barbecues, mustards, jellies and ointment treatments
+    - Loaded with antibacterial and antifungal properties
+    - Can treat dandruff, is used in energy drinks, and can treat wounds and burns
+    - Can also help fight local allergies
+
+- But do we really *depend* on them?
+
+## Overview 
+- Data
+    - Sources, Manipulation, Cleaning (ADD LINK TO SLIDES)
+    - Exploration
+
+- Statistics
+    - Summarising the Data
+    - Predicting Honey Production
+  
+- Analysis
+    - Linear Regression
+    - Multiple Linear Regression
+    
+- Wrap Up
+    - Conclusion
+    - Next Steps
+
+
+
+## Slide with Bullets
+
+- Bullet 1
+- Bullet 2
+- Bullet 3
+
+This is an R Markdown presentation. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document.
+
+
+## Slide with R Output
+
+```{r cars, echo = TRUE}
+summary(cars)
+```
+
+## Slide with Plot
+
+```{r pressure}
+plot(pressure)
+```
+
+
+
+
+
+
+## Map
+
+Image of Honey Bee Colony Operations by State:
+https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/figure/manual-unnamed-chunk-20-1.png
+
+
+
+## Linear Regression
+
+
+Image of final Linear Regression QQPlot:
+https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/figure/manual-unnamed-chunk-51-2.png
+
+## Multiple Linear Regression
+
+Image of final Multiple Linear Regression QQPlot: 
+https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/figure/manual-unnamed-chunk-58-1.png
+
+
+## Conclusion: Plight of the Bumblebee
+
+
+
+## Next Steps
+
+
+
+## Thank You
+
+- Contact
+    - Chris G Martin
+    - <chrisgmartin2@gmail.com>
+    
+- Resources
+    - GitHub: <https://github.com/chrisgmartin/HoneyIShrunkTheBees>
+    - RPubs: <http://rpubs.com/chrisgmartin> ---- UPDATE WITH FINAL RPUBS LINK
+
+- Data Sources:
+    - NASS: <https://quickstats.nass.usda.gov>
+    - State Table: <http://www.statetable.com>
+    
