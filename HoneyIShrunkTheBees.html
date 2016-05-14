@@ -669,7 +669,13 @@ honey_state3 &lt;-<span class="st"> </span>honey_state2_tmp %&gt;%<span class="s
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">honey_county3 &lt;-<span class="st"> </span>honey_county3[!(<span class="kw">is.na</span>(honey_county3$<span class="st">`</span><span class="dt">HONEY - PRODUCTION, MEASURED IN LB</span><span class="st">`</span>)),]
 <span class="kw">head</span>(honey_county3$<span class="st">`</span><span class="dt">HONEY - PRODUCTION, MEASURED IN LB</span><span class="st">`</span>)</code></pre></div>
 <pre><code>## [1]   982 26666  4975   590  3306  9072</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">honey_state3 &lt;-<span class="st"> </span>honey_state3[!(<span class="kw">is.na</span>(honey_state3$<span class="st">`</span><span class="dt">HONEY - PRODUCTION, MEASURED IN LB / COLONY</span><span class="st">`</span>)),]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">honey_state3 &lt;-<span class="st"> </span>honey_state3[!(<span class="kw">is.na</span>(honey_state3$<span class="st">`</span><span class="dt">HONEY - PRODUCTION, MEASURED IN LB / COLONY</span><span class="st">`</span>)),]
+
+
+
+<span class="co">#to export the table</span>
+<span class="kw">write.csv</span>(honey_state3, <span class="dt">file =</span> <span class="st">'D:/GitHub/HoneyIShrunkTheBees/Appendix/honey_state3.csv'</span>)
+<span class="kw">write.csv</span>(honey_county3, <span class="dt">file =</span> <span class="st">'D:/GitHub/HoneyIShrunkTheBees/Appendix/honey_county3.csv'</span>)</code></pre></div>
 </div>
 <div id="data-exploration" class="section level3">
 <h3>Data Exploration</h3>

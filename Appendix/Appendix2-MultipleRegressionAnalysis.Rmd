@@ -1,5 +1,5 @@
 ---
-title: "Appendix Two: HISP Multiple Regression Analysis"
+title: "Appendix Two: HISB Multiple Regression Analysis"
 output: html_document
 ---
 
@@ -17,8 +17,7 @@ We need to load the data set that we will use for this analysis first (of course
 
 ADD LINK to datasets!
 ```{r}
-#ADD LINK
-
+HoneyC_FullModel <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Appendix/HoneyC_FullModel.csv", header = TRUE)
 ```
 
 Another data set we will need comes from the City University of New York's Masters of Data Analytics Program (CUNY MSDA Program) course IS 606 - Statistics and Probability for Data Analytics. These custom files assist in the linear regression as it includes a very hand function:
@@ -34,12 +33,9 @@ Simply enough, each .CSV was imported into a schema (titled **HISP**) using the 
 
 #### Full Model:
 
-The full model uses every available explanatory variable to attempt to predict the variable at hand. As our state dataset includes an intimidating 108 different variables, using the full model is an incredibly messy task. For ease, we'll switch to the county dataset which includes "only" 21 DataItem's, removing all incomplete cases, and look at total production measured in LB (rather than production per colony. Note that this case requires us to force null values to 0 despite my previous incling not to do so, after removing cases with incomplete results (N/A's or Null Values) for Honey Produced, because there are simply not enough data points without null values in one of the many columns (there are zero, in fact):
+The full model uses every available explanatory variable to attempt to predict the variable at hand. As our state dataset includes an intimidating 108 different variables, using the full model is an incredibly messy task. For ease, we switched to the county dataset which includes "only" 21 DataItem's, removing all incomplete cases, and look at total production measured in LB (rather than production per colony. Note that this case requires us to force null values to 0 despite my previous incling not to do so, after removing cases with incomplete results (N/A's or Null Values) for Honey Produced, because there are simply not enough data points without null values in one of the many columns (there are zero, in fact):
 
 ```{r}
-HoneyC_FullModel <- honey_county3[,c(1,5,6:26)]
-colnames(HoneyC_FullModel) <- c("Year", "CountyANSI", "ChemExp", "ChemOps", "CropOps", "CropSales", "CropOrgOps", "CropOrgSales", "FertExp", "FertOps", "HoneyOpsProd", "HoneyOpsSales", "HoneyProd", "HoneySales", "HoneyColOps", "HoneyColSales", "HortExcTVSTOps", "HortExcTVSTSales", "HortExcTAcres", "HortExcTIrgAcres", "HortExcTIrgOps", "HortUndProt")
-
 #return only complete cases
 HoneyC_FullModel <- HoneyC_FullModel[complete.cases(HoneyC_FullModel[,13]),]
 HoneyC_FullModel[is.na(HoneyC_FullModel)] <- 0

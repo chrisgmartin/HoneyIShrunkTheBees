@@ -27,13 +27,13 @@ if (before && options$fig.show!='none') par(mar=c(4,4,.2,.1),cex.lab=.95,cex.axi
 
 
 
-## Part 1 - Introduction:
+## Part 1 - Introduction
 
 Bees: the most **effective** pollinator on the planet. In the United States, we seem to have a love/hate relationship with these facinating creatures; on the one hand we are well aware and appreciative of their role in nature and yet the number of bees is quickly dwindling without *us* giving *them* any significant help. Regardless of their global collapse in number, one of the many questions we will explore here is: **do we rely on them?**
 
 By looking at a variety of data, we hope to find links between the production of honey and other agricultural statistics.
 
-### Why Honey:
+### Why Honey
 
 Collecting honey is an ancient tradition dating back over 8,000 years ago$^1$. It's a product made by bees while foraging for nectar from flowers. While honey bees are the most common type of bee that produces the honey that humans extract for food, there are a number of other bees and wasps that create honey, and of course all bees and other insects pollinate. For the purposes of this project, we are going to ignore the details and make the assumption that honey is directly associated only to bees.
 
@@ -43,9 +43,9 @@ Honey production is valuable to the United States economy. Honey is used in maki
 
 This study sets out to understand better understand some of the impacts on honey production in the United States by exploring various data fields across all 50 states, and futher inbetween.
 
-## Part 2 - Data:
+## Part 2 - Data
 
-Outlined in this section are the data processes: [1] Importing, [2] Data Cleaning, [3] Data Tidying, and [4] Data Exploration. Please see [Appendix One: Data Merging in MySQL](https://github.com/chrisgmartin/HoneyIShrunkTheBees/tree/master/Appendix) for more details on the data importing and manipulation techinques; the MySQL queries can also be found there. All of the data has been saved in the [GitHub Data folder](https://github.com/chrisgmartin/HoneyIShrunkTheBees/tree/master/Data).
+Outlined in this section are the data processes: [1] Importing, [2] Data Cleaning, [3] Data Tidying, and [4] Data Exploration. Please see [Appendix One: Data Merging in MySQL](http://rpubs.com/chrisgmartin/HISB_AppendixOne) for more details on the data importing and manipulation techinques; the MySQL queries can also be found there. All of the data has been saved in the [GitHub Data folder](https://github.com/chrisgmartin/HoneyIShrunkTheBees/tree/master/Data).
 
 ### Package Setup
 
@@ -69,18 +69,18 @@ Another data set we will need comes from the City University of New York's Maste
 load(url("https://github.com/chrisgmartin/HoneyIShrunkTheBees/raw/master/Additional/nc.RData"))
 ```
 
-### Data Import:
+### Data Import
 
 The most important part of this analysis is obviously the data. Fortunately there is a plethora of open source data available.
 
-After following some detailed [Stack Overflow](https://stackoverflow.com/questions/10292326/how-to-connect-r-with-mysql-or-how-to-install-rmysql-package) tips, I was able to connect to a local MySQL server that I created called 'HISP' (Honey, I Shrunk the Production -- a previous title for this project). Please see the HIPS database sources in Appendix 1 and outlined below.
+After following some detailed [Stack Overflow](https://stackoverflow.com/questions/10292326/how-to-connect-r-with-mysql-or-how-to-install-rmysql-package) tips, I was able to connect to a local MySQL server that I created called 'HISP' (Honey, I Shrunk the Production -- a previous title for this project). Please see the HIBS database sources in Appendix 1 and outlined below.
 
 ```{r, warning = FALSE}
 con <- odbcConnect("hisp")
 sqlQuery(con, "use hisp")
 ```
 
-#### National Agriculture Statistics Service:
+#### National Agriculture Statistics Service
 
 The first set of data came from the [National Agriculture Statistics Service website](https://quickstats.nass.usda.gov/) (NASS), which houses a large amount of data related to United States Agriculture. The website stores census and survey data on a number of subjects (the main categories are animals, products, crops, demographics, economics, and environment) across a number of geographic levels (national, state, county, and zip code) for a number of years. The data can be access by the website UI allowing the user to select each subject, geographic level, and year which can then be exported into a .CSV file, or the entire database can be downloaded as a text file after extracting the database .GZ. For our data it was simple enough to query the database using the website rather than have to deal with the large and cumbersome dataset. The queries were then saved into seperate .CSV files, [imported into MySQL, and prepared for R](https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/HoneyIShrunkTheBees.sql):
 
@@ -113,7 +113,7 @@ FIPS <- (sqlQuery(con, "select * from FIPS", stringsAsFactors=FALSE))
 #FIPS <- read.csv('https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/FIPS.csv', header = TRUE)
 ```
 
-#### Closing the MySQL Connection:
+#### Closing the MySQL Connection
 
 For safe measures, we should always close out our MySQL connection to maintain data integrity.
 
@@ -215,6 +215,7 @@ honey_state2_tmp <- honey_state2 %>%
 honey_state3 <- honey_state2_tmp %>% 
   spread(., DataItem, Value)
 kable(head(honey_state3[,1:10], 1))
+
 ```
 
 Now going back to our Data Cleaning section, what do we do with pesky (NULL) values? We cleaned them up before, back when each data item had its own row, but now that the data items are rolled-up and transposed into their State/Year combinations we have a large number of rows where our given metric will be analysed. Likely to be the most practical DataItem for our topic, **HONEY - PRODUCTION, MEASURED IN LB** for counties and **HONEY - PRODUCTION, MEASURED IN LB / COLONY** for state level data has a number of (NULL) values. Let's remove those data items.
@@ -227,6 +228,12 @@ honey_county3 <- honey_county3[!(is.na(honey_county3$`HONEY - PRODUCTION, MEASUR
 head(honey_county3$`HONEY - PRODUCTION, MEASURED IN LB`)
 
 honey_state3 <- honey_state3[!(is.na(honey_state3$`HONEY - PRODUCTION, MEASURED IN LB / COLONY`)),]
+
+
+
+#to export the table
+write.csv(honey_state3, file = 'D:/GitHub/HoneyIShrunkTheBees/Data/honey_state3.csv')
+write.csv(honey_county3, file = 'D:/GitHub/HoneyIShrunkTheBees/Data/honey_county3.csv')
 ```
 
 ### Data Exploration
@@ -298,7 +305,7 @@ kable(tail(honey_state2[which(honey_state2$DataItem == 'HONEY - PRODUCTION, MEAS
 
 Extremely interesting. We're seeing a major drop in production per colony throughout the years.
 
-### Initial Observations and Comments:
+### Initial Observations and Comments
 
 On the resources I listed and used thus far (mainly NASS), they are incredibly excellent and economically valueable resources for researchers and businesses alike. The data seems to be well maintained, fairly simple to extract, and reliably updated. I'd like to extend my gratitude to those organizations for their work as I'm certain it will help us all now and in the future.
 
@@ -308,7 +315,7 @@ Another observation is the limited data in some categories. For example, at the 
 
 By the end of this analysis: I hope that my personal expectations will not bias my end results, in fact I hope I am pleasantly surprised by my results in the end.
 
-## Part 3 - Exploratory data analysis:
+## Part 3 - Exploratory data analysis
 
 Here we will try to explore some of our data and see if we can find any interesting details that would be helpful to know.
 
@@ -476,7 +483,7 @@ So let's move on. The fun's over, it's been great, but let's get back to busines
 
 
 
-## Part 4 - Inference:
+## Part 4 - Inference
 
 By using statistical measures we can attempt to use our data to study the relationship between variables and make casual links between them to infer information in the future. Essentially, we hope to use our data to predict the future. The tools we will use to do this include [1] summary statistics, [2] hypothesis testing and confidence intervals, [3] simulations based on inference, [4] linear regression, and [5] multiple linear regression.
 
@@ -723,7 +730,7 @@ Linear Regression Conclusion: What we see is that the positive linear relationsh
 
 With our newfound understanding of the relationship between honey produced per colony and the number of colonies, we are no closer to answering our ultimate question: do we really rely on the bees?
 
-There are three ways we can perform the regression analysis: [1] the full model, [2] the backward elimination model, and [3] the forward selection model. To save time, each of these models were run on the backend with the backup data and process in a seperate file stored in our GitHub folder for [Appendix Two: Multiple Regression Analysis](https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/Appendix/Appendix2-MultipleRegressionAnalysis.Rmd)
+There are three ways we can perform the regression analysis: [1] the full model, [2] the backward elimination model, and [3] the forward selection model. To save time, each of these models were run on the backend with the backup data and process in a seperate file stored in our GitHub folder for [Appendix Two: Multiple Regression Analysis](http://rpubs.com/chrisgmartin/HISB_AppendixTwo)
 
 #### Full Model
 
@@ -736,6 +743,9 @@ colnames(HoneyC_FullModel) <- c("Year", "CountyANSI", "ChemExp", "ChemOps", "Cro
 #return only complete cases
 HoneyC_FullModel <- HoneyC_FullModel[complete.cases(HoneyC_FullModel[,13]),]
 HoneyC_FullModel[is.na(HoneyC_FullModel)] <- 0
+
+#export table for use in Appendix Two
+write.csv(HoneyC_FullModel, file = 'D:/GitHub/HoneyIShrunkTheBees/Appendix/HoneyC_FullModel.csv')
 
 m_full <- lm(HoneyProd ~ ChemExp + ChemOps + CropOps + CropSales + CropOrgOps + CropOrgSales + FertExp + FertOps + HoneyOpsProd + HoneyOpsSales + HoneySales + HoneyColOps + HoneyColSales + HortExcTVSTOps + HortExcTVSTSales + HortExcTAcres + HortExcTIrgAcres + HortExcTIrgOps + HortUndProt, data = HoneyC_FullModel)
 summary(m_full)
@@ -813,16 +823,12 @@ There are several directions we could go from here. One direction could be analy
 
 Another analysis I would enjoy doing is to see the reverse of what I've done here: rather than seeing how these variables explain the honey production of a colony, seeing how honey production influences the other variables. This would give us much more insight into the over-arching question I posed at the outset: Do we rely on the bees?
 
-## References:
+## References
 
 [1]  Crane, Eva (1983) The Archaeology of Beekeeping, Cornell University Press, ISBN 0-8014-1609-4
 
-## Appendix (optional):
+## Appendix (optional)
 
-[Appendix One: Data Merging in MySQL](: [MySQL Query](https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/HoneyIShrunkTheBees.sql) and [Appendix 1 RMarkdown write-up](https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/Appendix/Appendix1-DataMySQL.Rmd)
+Appendix One: Data Merging in MySQL: [MySQL Query](https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/HoneyIShrunkTheBees.sql), [Appendix 1 RMarkdown write-up](https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/Appendix/Appendix1-DataMySQL.Rmd), and [RPubs write-up](http://rpubs.com/chrisgmartin/HISB_AppendixOne)
 
-[Appendix Two: Multiple Regression Analysis](https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/Appendix/Appendix2-MultipleRegressionAnalysis.Rmd), and [table exported for use](https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/Appendix/HoneyC_FullModel.csv):
-
-```{r}
-#write.csv(HoneyC_FullModel, file = 'D:/GitHub/HoneyIShrunkTheBees/Appendix/HoneyC_FullModel.csv')
-```
+Appendix Two: Multiple Regression Analysis: [Appendix 2 RMarkdown write-up](https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/Appendix/Appendix2-MultipleRegressionAnalysis.Rmd), [table exported for use](https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/Appendix/HoneyC_FullModel.csv), and [RPubs write-up](http://rpubs.com/chrisgmartin/HISB_AppendixTwo).
