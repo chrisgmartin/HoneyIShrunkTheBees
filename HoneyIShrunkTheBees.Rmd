@@ -216,6 +216,10 @@ honey_state3 <- honey_state2_tmp %>%
   spread(., DataItem, Value)
 kable(head(honey_state3[,1:10], 1))
 
+#export tables for use in presentation
+write.csv(honey_state2, file = 'D:/GitHub/HoneyIShrunkTheBees/Appendix/honey_state2.csv')
+write.csv(honey_county2, file = 'D:/GitHub/HoneyIShrunkTheBees/Appendix/honey_county2.csv')
+
 ```
 
 Now going back to our Data Cleaning section, what do we do with pesky (NULL) values? We cleaned them up before, back when each data item had its own row, but now that the data items are rolled-up and transposed into their State/Year combinations we have a large number of rows where our given metric will be analysed. Likely to be the most practical DataItem for our topic, **HONEY - PRODUCTION, MEASURED IN LB** for counties and **HONEY - PRODUCTION, MEASURED IN LB / COLONY** for state level data has a number of (NULL) values. Let's remove those data items.
@@ -745,7 +749,7 @@ HoneyC_FullModel <- HoneyC_FullModel[complete.cases(HoneyC_FullModel[,13]),]
 HoneyC_FullModel[is.na(HoneyC_FullModel)] <- 0
 
 #export table for use in Appendix Two
-write.csv(HoneyC_FullModel, file = 'D:/GitHub/HoneyIShrunkTheBees/Appendix/HoneyC_FullModel.csv')
+#write.csv(HoneyC_FullModel, file = 'D:/GitHub/HoneyIShrunkTheBees/Appendix/HoneyC_FullModel.csv')
 
 m_full <- lm(HoneyProd ~ ChemExp + ChemOps + CropOps + CropSales + CropOrgOps + CropOrgSales + FertExp + FertOps + HoneyOpsProd + HoneyOpsSales + HoneySales + HoneyColOps + HoneyColSales + HortExcTVSTOps + HortExcTVSTSales + HortExcTAcres + HortExcTIrgAcres + HortExcTIrgOps + HortUndProt, data = HoneyC_FullModel)
 summary(m_full)

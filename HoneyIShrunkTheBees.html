@@ -239,11 +239,11 @@ div.tocify {
 
 
 <div id="part-1---introduction" class="section level2">
-<h2>Part 1 - Introduction:</h2>
+<h2>Part 1 - Introduction</h2>
 <p>Bees: the most <strong>effective</strong> pollinator on the planet. In the United States, we seem to have a love/hate relationship with these facinating creatures; on the one hand we are well aware and appreciative of their role in nature and yet the number of bees is quickly dwindling without <em>us</em> giving <em>them</em> any significant help. Regardless of their global collapse in number, one of the many questions we will explore here is: <strong>do we rely on them?</strong></p>
 <p>By looking at a variety of data, we hope to find links between the production of honey and other agricultural statistics.</p>
 <div id="why-honey" class="section level3">
-<h3>Why Honey:</h3>
+<h3>Why Honey</h3>
 <p>Collecting honey is an ancient tradition dating back over 8,000 years ago<span class="math inline">\(^1\)</span>. It’s a product made by bees while foraging for nectar from flowers. While honey bees are the most common type of bee that produces the honey that humans extract for food, there are a number of other bees and wasps that create honey, and of course all bees and other insects pollinate. For the purposes of this project, we are going to ignore the details and make the assumption that honey is directly associated only to bees.</p>
 <p>Most if not all beekeepers harvest honey from their bees as a source of income, but they also sell or rent hives to farms. As the number of bees across the world has steadily dropped, renting or selling hives has become a lucrative business. The sold or leased bees are taken to a farm and help to naturally pollinate farms and the lands around them, helping the farmer to grow crop, cultivate land, fertilize land, and develop the land more effectively. When the bees return to the hive after foraging, they produce honey from the nectar they collect, are returned the beekeeper or farmer, who in turn can harvest the honey and sell it for profit.</p>
 <p>Honey production is valuable to the United States economy. Honey is used in making desserts, breads, barbecues, mustards, jellies and ointment treatments. Honey as amazing health benefits, too. It’s loaded with antibacterial and antifungal properties and has been known to work well as a dextromethorphan, which is a common ingredient in cough medications to soothe cough. Additionally, honey can treat dandruff, is used in energy drinks, and can treat wounds and burns. It is a common belief that honey consumption can also help fight local allergies.</p>
@@ -251,8 +251,8 @@ div.tocify {
 </div>
 </div>
 <div id="part-2---data" class="section level2">
-<h2>Part 2 - Data:</h2>
-<p>Outlined in this section are the data processes: [1] Importing, [2] Data Cleaning, [3] Data Tidying, and [4] Data Exploration. Please see <a href="https://github.com/chrisgmartin/HoneyIShrunkTheBees/tree/master/Appendix">Appendix One: Data Merging in MySQL</a> for more details on the data importing and manipulation techinques; the MySQL queries can also be found there. All of the data has been saved in the <a href="https://github.com/chrisgmartin/HoneyIShrunkTheBees/tree/master/Data">GitHub Data folder</a>.</p>
+<h2>Part 2 - Data</h2>
+<p>Outlined in this section are the data processes: [1] Importing, [2] Data Cleaning, [3] Data Tidying, and [4] Data Exploration. Please see <a href="http://rpubs.com/chrisgmartin/HISB_AppendixOne">Appendix One: Data Merging in MySQL</a> for more details on the data importing and manipulation techinques; the MySQL queries can also be found there. All of the data has been saved in the <a href="https://github.com/chrisgmartin/HoneyIShrunkTheBees/tree/master/Data">GitHub Data folder</a>.</p>
 <div id="package-setup" class="section level3">
 <h3>Package Setup</h3>
 <p>Before we jump in, it’s important to load any packages we might use. One option could be to load them as needed, however we may run into several problems with that as the <em>dplyr</em> package must be loaded after the <em>plyr</em> package (included with the <em>choroplethr</em> package) because doing otherwise will not cause issues when trying to implement the <strong>group_by</strong> and <strong>summarise</strong> features of the <em>dplyr</em> package. Also, the <em>pacman</em> package is used to load multiple packages because it tends to simplifies the code and organize it better visually (see example below).</p>
@@ -269,14 +269,14 @@ pacman::<span class="kw">p_load</span>(choroplethr, choroplethrMaps, RODBC, stri
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">load</span>(<span class="kw">url</span>(<span class="st">&quot;https://github.com/chrisgmartin/HoneyIShrunkTheBees/raw/master/Additional/nc.RData&quot;</span>))</code></pre></div>
 </div>
 <div id="data-import" class="section level3">
-<h3>Data Import:</h3>
+<h3>Data Import</h3>
 <p>The most important part of this analysis is obviously the data. Fortunately there is a plethora of open source data available.</p>
-<p>After following some detailed <a href="https://stackoverflow.com/questions/10292326/how-to-connect-r-with-mysql-or-how-to-install-rmysql-package">Stack Overflow</a> tips, I was able to connect to a local MySQL server that I created called ‘HISP’ (Honey, I Shrunk the Production – a previous title for this project). Please see the HIPS database sources in Appendix 1 and outlined below.</p>
+<p>After following some detailed <a href="https://stackoverflow.com/questions/10292326/how-to-connect-r-with-mysql-or-how-to-install-rmysql-package">Stack Overflow</a> tips, I was able to connect to a local MySQL server that I created called ‘HISP’ (Honey, I Shrunk the Production – a previous title for this project). Please see the HIBS database sources in Appendix 1 and outlined below.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">con &lt;-<span class="st"> </span><span class="kw">odbcConnect</span>(<span class="st">&quot;hisp&quot;</span>)
 <span class="kw">sqlQuery</span>(con, <span class="st">&quot;use hisp&quot;</span>)</code></pre></div>
 <pre><code>## [1] &quot;No Data&quot;</code></pre>
 <div id="national-agriculture-statistics-service" class="section level4">
-<h4>National Agriculture Statistics Service:</h4>
+<h4>National Agriculture Statistics Service</h4>
 <p>The first set of data came from the <a href="https://quickstats.nass.usda.gov/">National Agriculture Statistics Service website</a> (NASS), which houses a large amount of data related to United States Agriculture. The website stores census and survey data on a number of subjects (the main categories are animals, products, crops, demographics, economics, and environment) across a number of geographic levels (national, state, county, and zip code) for a number of years. The data can be access by the website UI allowing the user to select each subject, geographic level, and year which can then be exported into a .CSV file, or the entire database can be downloaded as a text file after extracting the database .GZ. For our data it was simple enough to query the database using the website rather than have to deal with the large and cumbersome dataset. The queries were then saved into seperate .CSV files, <a href="https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/HoneyIShrunkTheBees.sql">imported into MySQL, and prepared for R</a>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#load the data</span>
 honey_county &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">sqlQuery</span>(con, <span class="st">&quot;select * from honey_county&quot;</span>, <span class="dt">stringsAsFactors=</span><span class="ot">FALSE</span>))
@@ -409,7 +409,7 @@ FIPS &lt;-<span class="st"> </span>(<span class="kw">sqlQuery</span>(con, <span 
 <span class="co">#FIPS &lt;- read.csv('https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/FIPS.csv', header = TRUE)</span></code></pre></div>
 </div>
 <div id="closing-the-mysql-connection" class="section level4">
-<h4>Closing the MySQL Connection:</h4>
+<h4>Closing the MySQL Connection</h4>
 <p>For safe measures, we should always close out our MySQL connection to maintain data integrity.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">odbcClose</span>(con)</code></pre></div>
 </div>
@@ -662,6 +662,9 @@ honey_state3 &lt;-<span class="st"> </span>honey_state2_tmp %&gt;%<span class="s
 </tr>
 </tbody>
 </table>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#export tables for use in presentation</span>
+<span class="kw">write.csv</span>(honey_state2, <span class="dt">file =</span> <span class="st">'D:/GitHub/HoneyIShrunkTheBees/Appendix/honey_state2.csv'</span>)
+<span class="kw">write.csv</span>(honey_county2, <span class="dt">file =</span> <span class="st">'D:/GitHub/HoneyIShrunkTheBees/Appendix/honey_county2.csv'</span>)</code></pre></div>
 <p>Now going back to our Data Cleaning section, what do we do with pesky (NULL) values? We cleaned them up before, back when each data item had its own row, but now that the data items are rolled-up and transposed into their State/Year combinations we have a large number of rows where our given metric will be analysed. Likely to be the most practical DataItem for our topic, <strong>HONEY - PRODUCTION, MEASURED IN LB</strong> for counties and <strong>HONEY - PRODUCTION, MEASURED IN LB / COLONY</strong> for state level data has a number of (NULL) values. Let’s remove those data items.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#example with NA columns</span>
 <span class="kw">head</span>(honey_county3$<span class="st">`</span><span class="dt">HONEY - PRODUCTION, MEASURED IN LB</span><span class="st">`</span>)</code></pre></div>
@@ -674,8 +677,8 @@ honey_state3 &lt;-<span class="st"> </span>honey_state2_tmp %&gt;%<span class="s
 
 
 <span class="co">#to export the table</span>
-<span class="kw">write.csv</span>(honey_state3, <span class="dt">file =</span> <span class="st">'D:/GitHub/HoneyIShrunkTheBees/Appendix/honey_state3.csv'</span>)
-<span class="kw">write.csv</span>(honey_county3, <span class="dt">file =</span> <span class="st">'D:/GitHub/HoneyIShrunkTheBees/Appendix/honey_county3.csv'</span>)</code></pre></div>
+<span class="kw">write.csv</span>(honey_state3, <span class="dt">file =</span> <span class="st">'D:/GitHub/HoneyIShrunkTheBees/Data/honey_state3.csv'</span>)
+<span class="kw">write.csv</span>(honey_county3, <span class="dt">file =</span> <span class="st">'D:/GitHub/HoneyIShrunkTheBees/Data/honey_county3.csv'</span>)</code></pre></div>
 </div>
 <div id="data-exploration" class="section level3">
 <h3>Data Exploration</h3>
@@ -945,7 +948,7 @@ honey_state3 &lt;-<span class="st"> </span>honey_state2_tmp %&gt;%<span class="s
 </div>
 </div>
 <div id="initial-observations-and-comments" class="section level3">
-<h3>Initial Observations and Comments:</h3>
+<h3>Initial Observations and Comments</h3>
 <p>On the resources I listed and used thus far (mainly NASS), they are incredibly excellent and economically valueable resources for researchers and businesses alike. The data seems to be well maintained, fairly simple to extract, and reliably updated. I’d like to extend my gratitude to those organizations for their work as I’m certain it will help us all now and in the future.</p>
 <p>Of the variables in the dataset there are some I expect to have high positive correlation to Honey Production, while some I expect to have a strong negative correlation with Honey Production. Of those, horticulture data seems like it would have a strong impact as bees rely on pollen to survive. Chemical and Fertilizer use, however, I expect to have a strong negative correlation. My initial opinion is that these chemicals and fertilizers make it difficult for bees to sustain themselves in the “nature” we force them into. Crops, I believe, can be a “control” group in that I expect them to be fairly neutral to our Honey Produciton as they may or may not be directly related to our pollinator end product (more bees / more crops? or less bees / less crops?).</p>
 <p>Another observation is the limited data in some categories. For example, at the state level for Honey Production in lb’s, we have annual data from 1987 to 2015; however, in the county level we only have three years of data: 2002, 2007, and 2012. This limits our ability to really dive into that. It also hinders our ability to see a meaningful trend. There are many more useful data points found online which require some additional work to combine and analyse in tandem with other variables such as Crop Sales. For the sake of convience, the NASS dataset was a great start to my research.</p>
@@ -953,7 +956,7 @@ honey_state3 &lt;-<span class="st"> </span>honey_state2_tmp %&gt;%<span class="s
 </div>
 </div>
 <div id="part-3---exploratory-data-analysis" class="section level2">
-<h2>Part 3 - Exploratory data analysis:</h2>
+<h2>Part 3 - Exploratory data analysis</h2>
 <p>Here we will try to explore some of our data and see if we can find any interesting details that would be helpful to know.</p>
 <div id="map" class="section level3">
 <h3>Map</h3>
@@ -1129,7 +1132,7 @@ HC_HortPlot &lt;-<span class="st"> </span>HC_HortProd %&gt;%<span class="st"> </
 </div>
 </div>
 <div id="part-4---inference" class="section level2">
-<h2>Part 4 - Inference:</h2>
+<h2>Part 4 - Inference</h2>
 <p>By using statistical measures we can attempt to use our data to study the relationship between variables and make casual links between them to infer information in the future. Essentially, we hope to use our data to predict the future. The tools we will use to do this include [1] summary statistics, [2] hypothesis testing and confidence intervals, [3] simulations based on inference, [4] linear regression, and [5] multiple linear regression.</p>
 <div id="summary-statistics" class="section level3">
 <h3>Summary Statistics</h3>
@@ -1359,7 +1362,7 @@ Honey_Colonies &lt;-<span class="st"> </span>Honey_Colonies[<span class="kw">com
 <div id="multiple-linear-regression-drawing-a-big-line-to-the-hive" class="section level3">
 <h3>Multiple Linear Regression: Drawing a Big Line to the Hive</h3>
 <p>With our newfound understanding of the relationship between honey produced per colony and the number of colonies, we are no closer to answering our ultimate question: do we really rely on the bees?</p>
-<p>There are three ways we can perform the regression analysis: [1] the full model, [2] the backward elimination model, and [3] the forward selection model. To save time, each of these models were run on the backend with the backup data and process in a seperate file stored in our GitHub folder for <a href="https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/Appendix/Appendix2-MultipleRegressionAnalysis.Rmd">Appendix Two: Multiple Regression Analysis</a></p>
+<p>There are three ways we can perform the regression analysis: [1] the full model, [2] the backward elimination model, and [3] the forward selection model. To save time, each of these models were run on the backend with the backup data and process in a seperate file stored in our GitHub folder for <a href="http://rpubs.com/chrisgmartin/HISB_AppendixTwo">Appendix Two: Multiple Regression Analysis</a></p>
 <div id="full-model" class="section level4">
 <h4>Full Model</h4>
 <p>The full model uses every available explanatory variable to attempt to predict the variable at hand. As our state dataset includes an intimidating 108 different variables, using the full model is an incredibly messy task. For ease, we’ll switch to the county dataset which includes “only” 21 DataItem’s, remove all incomplete cases, and look at total production measured in lb’s (rather than production per colony. Note that this case requires us to force null values to 0 despite my previous warnings not to do so, after removing cases with incomplete results (N/A’s or Null Values) for Honey Produced because there are simply not enough data points without null values in one of the many columns (there are zero, in fact):</p>
@@ -1369,6 +1372,9 @@ Honey_Colonies &lt;-<span class="st"> </span>Honey_Colonies[<span class="kw">com
 <span class="co">#return only complete cases</span>
 HoneyC_FullModel &lt;-<span class="st"> </span>HoneyC_FullModel[<span class="kw">complete.cases</span>(HoneyC_FullModel[,<span class="dv">13</span>]),]
 HoneyC_FullModel[<span class="kw">is.na</span>(HoneyC_FullModel)] &lt;-<span class="st"> </span><span class="dv">0</span>
+
+<span class="co">#export table for use in Appendix Two</span>
+<span class="co">#write.csv(HoneyC_FullModel, file = 'D:/GitHub/HoneyIShrunkTheBees/Appendix/HoneyC_FullModel.csv')</span>
 
 m_full &lt;-<span class="st"> </span><span class="kw">lm</span>(HoneyProd ~<span class="st"> </span>ChemExp +<span class="st"> </span>ChemOps +<span class="st"> </span>CropOps +<span class="st"> </span>CropSales +<span class="st"> </span>CropOrgOps +<span class="st"> </span>CropOrgSales +<span class="st"> </span>FertExp +<span class="st"> </span>FertOps +<span class="st"> </span>HoneyOpsProd +<span class="st"> </span>HoneyOpsSales +<span class="st"> </span>HoneySales +<span class="st"> </span>HoneyColOps +<span class="st"> </span>HoneyColSales +<span class="st"> </span>HortExcTVSTOps +<span class="st"> </span>HortExcTVSTSales +<span class="st"> </span>HortExcTAcres +<span class="st"> </span>HortExcTIrgAcres +<span class="st"> </span>HortExcTIrgOps +<span class="st"> </span>HortUndProt, <span class="dt">data =</span> HoneyC_FullModel)
 <span class="kw">summary</span>(m_full)</code></pre></div>
@@ -1577,14 +1583,13 @@ m_full &lt;-<span class="st"> </span><span class="kw">lm</span>(HoneyProd ~<span
 </div>
 </div>
 <div id="references" class="section level2">
-<h2>References:</h2>
+<h2>References</h2>
 <p>[1] Crane, Eva (1983) The Archaeology of Beekeeping, Cornell University Press, ISBN 0-8014-1609-4</p>
 </div>
 <div id="appendix-optional" class="section level2">
-<h2>Appendix (optional):</h2>
-<p>[Appendix One: Data Merging in MySQL](: <a href="https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/HoneyIShrunkTheBees.sql">MySQL Query</a> and <a href="https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/Appendix/Appendix1-DataMySQL.Rmd">Appendix 1 RMarkdown write-up</a></p>
-<p><a href="https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/Appendix/Appendix2-MultipleRegressionAnalysis.Rmd">Appendix Two: Multiple Regression Analysis</a>, and <a href="https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/Appendix/HoneyC_FullModel.csv">table exported for use</a>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#write.csv(HoneyC_FullModel, file = 'D:/GitHub/HoneyIShrunkTheBees/Appendix/HoneyC_FullModel.csv')</span></code></pre></div>
+<h2>Appendix (optional)</h2>
+<p>Appendix One: Data Merging in MySQL: <a href="https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/HoneyIShrunkTheBees.sql">MySQL Query</a>, <a href="https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/Appendix/Appendix1-DataMySQL.Rmd">Appendix 1 RMarkdown write-up</a>, and <a href="http://rpubs.com/chrisgmartin/HISB_AppendixOne">RPubs write-up</a></p>
+<p>Appendix Two: Multiple Regression Analysis: <a href="https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/Appendix/Appendix2-MultipleRegressionAnalysis.Rmd">Appendix 2 RMarkdown write-up</a>, <a href="https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/Appendix/HoneyC_FullModel.csv">table exported for use</a>, and <a href="http://rpubs.com/chrisgmartin/HISB_AppendixTwo">RPubs write-up</a>.</p>
 </div>
 
 
