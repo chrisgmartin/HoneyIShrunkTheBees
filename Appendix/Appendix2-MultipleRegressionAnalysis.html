@@ -114,11 +114,11 @@ $(document).ready(function () {
 
 <div id="appendix-2-multiple-regression-analysis" class="section level2">
 <h2>Appendix 2: Multiple Regression Analysis:</h2>
-<p>For our multiple regression analysis, we evaluate three different types of models: [1] the full model, [2] backward elimination, and [3] forward selection. This Appendix is the process for each of these three steps and</p>
+<p>With our newfound understanding of the relationship between honey produced per colony and the number of colonies, we are no closer to answering our ultimate question: do we really rely on the bees?</p>
+<p>There are three ways we can perform the regression analysis: [1] the full model, [2] the backward elimination model, and [3] the forward selection model.</p>
 <div id="loading-packages-and-essential-data" class="section level3">
 <h3>Loading packages and essential data:</h3>
-<p>We need to load the data set that we will use for this analysis first (of course), which came from our main analysis file <a href="ADD%20LINK">Honey, I Shrunk the Bees</a> and exported to GitHub:</p>
-<p>ADD LINK to datasets!</p>
+<p>We need to load the data set that we will use for this analysis first (of course), which came from our main analysis file <a href="http://rpubs.com/chrisgmartin/HISB">Honey, I Shrunk the Bees</a> and exported to GitHub:</p>
 <pre class="r"><code>HoneyC_FullModel &lt;- read.csv(&quot;https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Appendix/HoneyC_FullModel.csv&quot;, header = TRUE)</code></pre>
 <p>Another data set we will need comes from the City University of New York’s Masters of Data Analytics Program (CUNY MSDA Program) course IS 606 - Statistics and Probability for Data Analytics. These custom files assist in the linear regression as it includes a very hand function:</p>
 <pre class="r"><code>load(url(&quot;https://github.com/chrisgmartin/HoneyIShrunkTheBees/raw/master/Additional/nc.RData&quot;))</code></pre>
@@ -128,7 +128,7 @@ $(document).ready(function () {
 <p>Simply enough, each .CSV was imported into a schema (titled <strong>HISP</strong>) using the MySQL data import wizard.</p>
 <div id="full-model" class="section level4">
 <h4>Full Model:</h4>
-<p>The full model uses every available explanatory variable to attempt to predict the variable at hand. As our state dataset includes an intimidating 108 different variables, using the full model is an incredibly messy task. For ease, we switched to the county dataset which includes “only” 21 DataItem’s, removing all incomplete cases, and look at total production measured in LB (rather than production per colony. Note that this case requires us to force null values to 0 despite my previous incling not to do so, after removing cases with incomplete results (N/A’s or Null Values) for Honey Produced, because there are simply not enough data points without null values in one of the many columns (there are zero, in fact):</p>
+<p>The full model uses every available explanatory variable to attempt to predict the variable at hand. As our state dataset includes an intimidating 108 different variables, using the full model is an incredibly messy task. For ease, we’ll switch to the county dataset which includes “only” 21 DataItem’s, remove all incomplete cases, and look at total production measured in lb’s (rather than production per colony. Note that this case requires us to force null values to 0 despite my previous warnings not to do so, after removing cases with incomplete results (N/A’s or Null Values) for Honey Produced because there are simply not enough data points without null values in one of the many columns (there are zero, in fact):</p>
 <pre class="r"><code>#return only complete cases
 HoneyC_FullModel &lt;- HoneyC_FullModel[complete.cases(HoneyC_FullModel[,13]),]
 HoneyC_FullModel[is.na(HoneyC_FullModel)] &lt;- 0
@@ -175,7 +175,7 @@ summary(m_full)</code></pre>
 ## Residual standard error: 146100 on 7078 degrees of freedom
 ## Multiple R-squared:  0.4337, Adjusted R-squared:  0.4322 
 ## F-statistic: 285.3 on 19 and 7078 DF,  p-value: &lt; 2.2e-16</code></pre>
-<p>This full model can give us a model that is simply too cumbersome for casual output, but the main takeaway can be our Adjusted R-squared of 0.4322. This value we can use to compare how effective the model is likely to be against our other final models: backward elimination and forward selection.</p>
+<p>This full model can give us a model that is simply too cumbersome for casual output, but the main takeaway can be our Adjusted R-squared of 0.4322. This value we can use to compare how effective the model is likely to be against our other potential models: backward elimination and forward selection.</p>
 </div>
 <div id="backward-elimination" class="section level4">
 <h4>Backward Elimination:</h4>
@@ -379,7 +379,7 @@ summary(m_backward)</code></pre>
 ## Residual standard error: 146200 on 7081 degrees of freedom
 ## Multiple R-squared:  0.4332, Adjusted R-squared:  0.4319 
 ## F-statistic: 338.2 on 16 and 7081 DF,  p-value: &lt; 2.2e-16</code></pre>
-<p>Another drop. In fact, after removing each of these variables once, there was no increase in the Adjusted R-squared so the backward model looks strikingly similar to the full model, except that we’ve ruled out any valuable impact to our model by eliminating the number of Crop Organizations with Operations and the number of Honey Colonies with Operations ending with an Adjusted R-squared of 0.4323.</p>
+<p>Another drop. In fact, after removing each of these variables once, there was no increase in the Adjusted R-squared so the backward model looks strikingly similar to the full model, except that we’ve ruled out any valuable impact to our model by eliminating the number of Crop Organizations with Operations and the number of Honey Colonies with Operations:</p>
 <pre class="r"><code>m_backward &lt;- lm(HoneyProd ~ ChemExp + ChemOps + CropOps + CropSales + CropOrgSales + FertExp + FertOps + HoneyOpsProd + HoneyOpsSales + HoneySales + HoneyColSales + HortExcTVSTOps + HortExcTVSTSales + HortExcTAcres + HortExcTIrgAcres + HortExcTIrgOps + HortUndProt, data = HoneyC_FullModel)
 summary(m_backward)</code></pre>
 <pre><code>## 
@@ -420,10 +420,11 @@ summary(m_backward)</code></pre>
 ## Residual standard error: 146100 on 7080 degrees of freedom
 ## Multiple R-squared:  0.4337, Adjusted R-squared:  0.4323 
 ## F-statistic: 318.9 on 17 and 7080 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p>So far our new best model came from the Backward Elimination method and gave us an Adjusted R-squared of 0.4323.</p>
 </div>
 <div id="forward-selection" class="section level4">
 <h4>Forward Selection:</h4>
-<p>In forward selection, the opposite of backward elimination occures: we add items until our Adjusted R-squared is higher than it was in the previous model.</p>
+<p>With forward selection we start from the start by comparing each variable in a linear model and adding new variables if they improve our Adjusted R-squared. It is the opposite of backward elimination: we add items until our Adjusted R-squared is higher than it was in the previous model.</p>
 <p>We start with the start, and end with the end. Here are a few examples:</p>
 <pre class="r"><code>m_forward &lt;- lm(HoneyProd ~ ChemExp, data = HoneyC_FullModel)
 summary(m_forward)</code></pre>
@@ -530,7 +531,7 @@ summary(m_forward)</code></pre>
 ## Residual standard error: 181800 on 7095 degrees of freedom
 ## Multiple R-squared:  0.1215, Adjusted R-squared:  0.1213 
 ## F-statistic: 490.8 on 2 and 7095 DF,  p-value: &lt; 2.2e-16</code></pre>
-<p>Adding ChemExp to our model, we get an decreased Adjusted R-squared of 0.1213. This item should not be added at this point.</p>
+<p>Adding ChemExp to our model, we get a decreased Adjusted R-squared of 0.1213. This item should not be added to our model, yet.</p>
 <pre class="r"><code>m_forward &lt;- lm(HoneyProd ~ HortUndProt + HoneySales, data = HoneyC_FullModel)
 summary(m_forward)</code></pre>
 <pre><code>## 
@@ -552,7 +553,7 @@ summary(m_forward)</code></pre>
 ## Residual standard error: 158600 on 7095 degrees of freedom
 ## Multiple R-squared:  0.3318, Adjusted R-squared:  0.3316 
 ## F-statistic:  1761 on 2 and 7095 DF,  p-value: &lt; 2.2e-16</code></pre>
-<p>Adding HoneySales to our model, we get an increased Adjusted R-squared of 0.3316. This item should be added at this point. Let’s see if we can add a third explanatory variable:</p>
+<p>Adding HoneySales to our model, we get an increased Adjusted R-squared of 0.3316. This item should be added. Let’s see if we can add a third explanatory variable:</p>
 <pre class="r"><code>m_forward &lt;- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales, data = HoneyC_FullModel)
 summary(m_forward)</code></pre>
 <pre><code>## 
@@ -1038,7 +1039,7 @@ summary(m_forward)</code></pre>
 </div>
 <div id="final-model-selection" class="section level3">
 <h3>Final Model Selection</h3>
-<p>It turns out, our final model is the same for backward elimination and forward selection. This isn’t a surprise exactly, but it gives us some understanding of what factors relate to one another.</p>
+<p>It turns out, our final model is the same for backward elimination and forward selection. This isn’t exactly a surprise, but it gives us some understanding of what factors relate to one another.</p>
 <pre class="r"><code>m_final &lt;- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales + ChemExp + HoneyOpsSales + CropOrgSales + HoneyOpsProd + HortExcTAcres + ChemOps + FertOps + FertExp + HortExcTIrgOps + CropSales + HortExcTVSTOps + HortExcTIrgAcres + CropOps + HortExcTVSTSales, data = HoneyC_FullModel)
 summary(m_final)</code></pre>
 <pre><code>## 

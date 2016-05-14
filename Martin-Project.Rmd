@@ -4,10 +4,10 @@ author: "Chris G Martin"
 date: "May 15, 2016"
 output:
   html_document:
+    toc: TRUE
+    toc_float: TRUE
     highlight: pygments
     theme: cerulean
-    toc: yes
-    toc_float: yes
   pdf_document: default
 ---
 

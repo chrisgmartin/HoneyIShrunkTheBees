@@ -9,13 +9,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Appendix 2: Multiple Regression Analysis:
 
-For our multiple regression analysis, we evaluate three different types of models: [1] the full model, [2] backward elimination, and [3] forward selection. This Appendix is the process for each of these three steps and 
+With our newfound understanding of the relationship between honey produced per colony and the number of colonies, we are no closer to answering our ultimate question: do we really rely on the bees?
+
+There are three ways we can perform the regression analysis: [1] the full model, [2] the backward elimination model, and [3] the forward selection model.
 
 ### Loading packages and essential data:
 
-We need to load the data set that we will use for this analysis first (of course), which came from our main analysis file [Honey, I Shrunk the Bees](ADD LINK) and exported to GitHub:
+We need to load the data set that we will use for this analysis first (of course), which came from our main analysis file [Honey, I Shrunk the Bees](http://rpubs.com/chrisgmartin/HISB) and exported to GitHub:
 
-ADD LINK to datasets!
 ```{r}
 HoneyC_FullModel <- read.csv("https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Appendix/HoneyC_FullModel.csv", header = TRUE)
 ```
@@ -33,7 +34,7 @@ Simply enough, each .CSV was imported into a schema (titled **HISP**) using the 
 
 #### Full Model:
 
-The full model uses every available explanatory variable to attempt to predict the variable at hand. As our state dataset includes an intimidating 108 different variables, using the full model is an incredibly messy task. For ease, we switched to the county dataset which includes "only" 21 DataItem's, removing all incomplete cases, and look at total production measured in LB (rather than production per colony. Note that this case requires us to force null values to 0 despite my previous incling not to do so, after removing cases with incomplete results (N/A's or Null Values) for Honey Produced, because there are simply not enough data points without null values in one of the many columns (there are zero, in fact):
+The full model uses every available explanatory variable to attempt to predict the variable at hand. As our state dataset includes an intimidating 108 different variables, using the full model is an incredibly messy task. For ease, we'll switch to the county dataset which includes "only" 21 DataItem's, remove all incomplete cases, and look at total production measured in lb's (rather than production per colony. Note that this case requires us to force null values to 0 despite my previous warnings not to do so, after removing cases with incomplete results (N/A's or Null Values) for Honey Produced because there are simply not enough data points without null values in one of the many columns (there are zero, in fact):
 
 ```{r}
 #return only complete cases
@@ -44,7 +45,7 @@ m_full <- lm(HoneyProd ~ ChemExp + ChemOps + CropOps + CropSales + CropOrgOps + 
 summary(m_full)
 ```
 
-This full model can give us a model that is simply too cumbersome for casual output, but the main takeaway can be our Adjusted R-squared of 0.4322. This value we can use to compare how effective the model is likely to be against our other final models: backward elimination and forward selection.
+This full model can give us a model that is simply too cumbersome for casual output, but the main takeaway can be our Adjusted R-squared of 0.4322. This value we can use to compare how effective the model is likely to be against our other potential models: backward elimination and forward selection.
 
 #### Backward Elimination:
 
@@ -83,16 +84,18 @@ m_backward <- lm(HoneyProd ~ ChemExp + ChemOps + CropOps + CropOrgSales + FertEx
 summary(m_backward)
 ```
 
-Another drop. In fact, after removing each of these variables once, there was no increase in the Adjusted R-squared so the backward model looks strikingly similar to the full model, except that we've ruled out any valuable impact to our model by eliminating the number of Crop Organizations with Operations and the number of Honey Colonies with Operations ending with an Adjusted R-squared of 0.4323.
+Another drop. In fact, after removing each of these variables once, there was no increase in the Adjusted R-squared so the backward model looks strikingly similar to the full model, except that we've ruled out any valuable impact to our model by eliminating the number of Crop Organizations with Operations and the number of Honey Colonies with Operations:
 
 ```{r}
 m_backward <- lm(HoneyProd ~ ChemExp + ChemOps + CropOps + CropSales + CropOrgSales + FertExp + FertOps + HoneyOpsProd + HoneyOpsSales + HoneySales + HoneyColSales + HortExcTVSTOps + HortExcTVSTSales + HortExcTAcres + HortExcTIrgAcres + HortExcTIrgOps + HortUndProt, data = HoneyC_FullModel)
 summary(m_backward)
 ```
 
+So far our new best model came from the Backward Elimination method and gave us an Adjusted R-squared of 0.4323.
+
 #### Forward Selection:
 
-In forward selection, the opposite of backward elimination occures: we add items until our Adjusted R-squared is higher than it was in the previous model.
+With forward selection we start from the start by comparing each variable in a linear model and adding new variables if they improve our Adjusted R-squared. It is the opposite of backward elimination: we add items until our Adjusted R-squared is higher than it was in the previous model.
 
 We start with the start, and end with the end. Here are a few examples:
 
@@ -131,14 +134,14 @@ m_forward <- lm(HoneyProd ~ HortUndProt + ChemExp, data = HoneyC_FullModel)
 summary(m_forward)
 ```
 
-Adding ChemExp to our model, we get an decreased Adjusted R-squared of 0.1213. This item should not be added at this point.
+Adding ChemExp to our model, we get a decreased Adjusted R-squared of 0.1213. This item should not be added to our model, yet.
 
 ```{r}
 m_forward <- lm(HoneyProd ~ HortUndProt + HoneySales, data = HoneyC_FullModel)
 summary(m_forward)
 ```
 
-Adding HoneySales to our model, we get an increased Adjusted R-squared of 0.3316. This item should be added at this point. Let's see if we can add a third explanatory variable:
+Adding HoneySales to our model, we get an increased Adjusted R-squared of 0.3316. This item should be added. Let's see if we can add a third explanatory variable:
 
 
 ```{r}
@@ -248,7 +251,7 @@ Adding HortExcTVSTSales to our model our Adjusted R-squared goes up to 0.4323. I
 
 ### Final Model Selection
 
-It turns out, our final model is the same for backward elimination and forward selection. This isn't a surprise exactly, but it gives us some understanding of what factors relate to one another.
+It turns out, our final model is the same for backward elimination and forward selection. This isn't exactly a surprise, but it gives us some understanding of what factors relate to one another.
 
 ```{r}
 m_final <- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales + ChemExp + HoneyOpsSales + CropOrgSales + HoneyOpsProd + HortExcTAcres + ChemOps + FertOps + FertExp + HortExcTIrgOps + CropSales + HortExcTVSTOps + HortExcTIrgAcres + CropOps + HortExcTVSTSales, data = HoneyC_FullModel)

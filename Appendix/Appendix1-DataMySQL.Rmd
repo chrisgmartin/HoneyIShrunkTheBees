@@ -9,17 +9,17 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Appendix 1: Data from MySQL:
 
-For each dataset, the query was saved into seperate .CSV files, uploaded to GitHub, and imported into MySQL. From MySQL they were prepped to be ready to import into R. This section with detail the data files (original .CSV's), the source, and the queries that were used to create our final datasets: *honeystate* and *honeycounty*. The queries past the import wizard can be found here, and the query has been saved in [GitHub](add link to MySQL query).
+For each dataset the query was saved into seperate .CSV files, uploaded to GitHub, and imported into MySQL; from MySQL they were prepared for import into R. This section will detail the data files (original .CSV's), the source, and the queries that were used to create our final datasets: *honey_state* and *honey_county*. The queries past the import wizard can be found here, and the query has been saved in [GitHub](https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/HoneyIShrunkTheBees.sql).
 
 ### Data Import:
 
-Simply enough, each .CSV was imported into a schema (titled **HISP**) using the MySQL data import wizard.
+Simply enough, each .CSV was imported into a schema (titled **HISP** -- a former title of the project) using the MySQL data import wizard.
 
 #### National Agriculture Statistics Service:
 
 The first set of data we gathered came from the [National Agriculture Statistics Service website](https://quickstats.nass.usda.gov/), which houses a large amount of data related to United States Agriculture. The website stores census and survey data on a number of subjects (the main categories are animals, products, crops, demographics, economics, and environment) across a number of geographic levels (national, state, county, and zip code) for a number of years. The data can be access by the website UI allowing the user to select each subject, geographic level, and year which can then be exported into a .CSV file, or the entire database can be downloaded as a text file after extracting the database .GZ. For our purposes, it was simple enough to query the database using the website rather than have to deal with the large and cumbersome dataset. 
 
-If we were to import the data into R directly we'd use the following (the [SQL query can be found using this link](https://github.com/chrisgmartin/HoneyIShrunkTheBees/blob/master/HoneyIShrunkTheBees.sql) ):
+To import the data into R (rather than MySQL) we'd use the following code (all data has been backed-up into [my personal GitHub account](https://github.com/chrisgmartin/HoneyIShrunkTheBees/tree/master/Data)):
 
 ```{r eval=FALSE}
 #County Data
@@ -42,11 +42,7 @@ honey_state <- read.csv('https://raw.githubusercontent.com/chrisgmartin/HoneyISh
 FIPS <- read.csv('https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Data/FIPS.csv', header = TRUE)
 ```
 
-
-
-
-
-However, since the data is now in MySQL we query it for the following table names:
+With a connection to MySQ estabilshed, these files can be queried by the following table names:
 
 - cahoneycensus_county_2012
 
@@ -68,25 +64,8 @@ However, since the data is now in MySQL we query it for the following table name
 
 - USAHorticultureCensus_State_allyears.csv
 
-And merge all of those datasets into two simple tables (views technically, so that we do not contaminate the original data) titled:
+And the final datasets can be queried with two simple tables titled:
 
 - honey_county: which lists all of the county level statistics
 
 - honey_state: which lists all of the state level statistics
-
-#### Data on Bee Colonies
-
-
-
-
-
-
-
-#### Data on County IDs
-
-Since the datasets containing county level information use the county name as the identifier, we need to add a county number to it for our maps.
-
-
-
-
-
