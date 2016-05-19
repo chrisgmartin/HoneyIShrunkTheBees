@@ -211,7 +211,7 @@ summary(honey_state3$'HONEY...PRODUCTION..MEASURED.IN.LB...COLONY')
 ```
 
 
-## Inference: Production of Honey per Colony Changed from 1987 to 2015 {.smaller}
+## Inference {.smaller}
 
 ```{r}
 StateProd2 <- honey_state3[,c(2,40)] %>% 
@@ -285,7 +285,7 @@ inference(y = population6$Value, x = population6$Year, est = "mean",
 ```
 
 
-## Analysis {.smaller}
+## Analysis: Linear Regression {.smaller}
 
 - Linear Regression:
     - Determining a casual relationship between the number of colonies and the production of honey per colony
@@ -295,7 +295,7 @@ inference(y = population6$Value, x = population6$Year, est = "mean",
 \]
 
 
-## Analysis {.smaller}
+## Analysis: Linear Regression {.smaller}
 
 - Linear Regression
 
@@ -311,7 +311,7 @@ qqline(hc1$residuals)
 #plot on next slide
 ```
 
-## Analysis {.smaller}
+## Analysis: Multiple Linear Regression {.smaller}
 
 - Linear Regression
 
@@ -329,12 +329,12 @@ m_final <- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales + ChemExp + H
 ```
 
 
-## Analysis: Linear Regression {.smaller}
+## Analysis: Multiple Linear Regression {.smaller}
 ```{r, echo=TRUE}
 summary(m_final)
 ```
 
-## Analysis {.smaller}
+## Analysis: Multiple Linear Regression {.smaller}
 
 - Linear Regression
 
