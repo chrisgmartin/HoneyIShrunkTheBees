@@ -1,0 +1,384 @@
+---
+title: "Honey, I Shrunk the Bees!"
+author: "Chris G Martin"
+date: "May 15, 2016"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+pacman::p_load(knitr, choroplethr, choroplethrMaps, RODBC, stringr, dplyr, tidyr, inference, plotly)
+load(url("https://github.com/chrisgmartin/HoneyIShrunkTheBees/raw/master/Additional/nc.RData"))
+con <- odbcConnect("hisp")
+sqlQuery(con, "use hisp")
+honey_county <- as.data.frame(sqlQuery(con, "select * from honey_county", stringsAsFactors=FALSE))
+honey_state <- as.data.frame(sqlQuery(con, "select * from honey_state", stringsAsFactors=FALSE))
+odbcClose(con)
+honey_state2 <- read.csv('https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Appendix/honey_state2.csv', header = TRUE)
+honey_county2 <- read.csv('https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Appendix/honey_county2.csv', header = TRUE)
+honey_state3 <- read.csv('https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Appendix/honey_state3.csv', header = TRUE)
+honey_county3 <- read.csv('https://raw.githubusercontent.com/chrisgmartin/HoneyIShrunkTheBees/master/Appendix/honey_county3.csv', header = TRUE)
+data(state.regions)
+```
+
+
+## Running of the Bees {.smaller}
+
+
+- Bees: we love 'em, yet we don't help 'em
+    - The most **effective** polinators on the planet
+    - Our history dates back over 8,000 years ago
+    
+- Honey helps our economy and our health
+    - Used in desserts, breads, barbecues, mustards, jellies and ointment treatments
+    - Loaded with antibacterial and antifungal properties
+    - Can treat dandruff, is used in energy drinks, and can treat wounds and burns
+    - Can also help fight local allergies
+
+
+## Running of the Bees {.smaller}
+
+- Bees: we love 'em, yet we don't help 'em
+    - The most **effective** polinators on the planet
+    - Our history dates back over 8,000 years ago
+    
+- Honey helps our economy and our health
+    - Used in desserts, breads, barbecues, mustards, jellies and ointment treatments
+    - Loaded with antibacterial and antifungal properties
+    - Can treat dandruff, is used in energy drinks, and can treat wounds and burns
+    - Can also help fight local allergies
+
+- **But do we really *depend* on them?**
+
+
+## Overview {.smaller}
+
+- Data
+    - Sources, Manipulation, Cleaning, and Tidying
+    - Exploration
+
+- Inference
+    - Summarising the Data
+    - Predicting Honey Production
+  
+- Analysis
+    - Linear Regression
+    - Multiple Linear Regression
+    
+- Wrap Up
+    - Conclusion
+    - Next Steps
+
+
+## Data: Sources, Manipulation, Cleaning, and Tidying {.smaller}
+
+- NASS: [National Agriculture Statistics Service](https://quickstats.nass.usda.gov/)
+
+![NASS Logo](https://upload.wikimedia.org/wikipedia/commons/0/07/Nass_logo.jpg)
+
+![The Bees](http://www.thefarmingpodcast.com/wp-content/uploads/2014/01/honey-bee-swarm-removal.jpg)
+
+## Data: Sources, Manipulation, Cleaning, and Tidying {.smaller}
+
+- NASS: [National Agriculture Statistics Service](https://quickstats.nass.usda.gov/)
+
+- MySQL: [Data Imported and Manipulated in MySQL](RPUBLS LIKNS)
+
+```{r}
+kable(head(honey_state[,c(1:3,6,17,20)], 3))
+```
+
+
+## Data: Sources, Manipulation, Cleaning, and Tidying {.smaller}
+
+- NASS: [National Agriculture Statistics Service](https://quickstats.nass.usda.gov/)
+
+- MySQL: [Data Imported and Manipulated in MySQL](RPUBLS LIKNS)
+
+- Cleaning:
+    - Most data was cleaned using MySQL
+    - Data was then imported into R for further cleaning
+
+```{r, eval=FALSE, echo=TRUE}
+#converted characters to values
+honey_county2$Value <- as.integer(honey_county2$Value)
+#changed NAs to 0
+honey_county2$Value[is.na(honey_county2$Value)] <- as.integer(0)
+#converted CountyANSI codes to 3 digits
+honey_county2$CountyANSI <- sprintf("%03d", honey_county2$CountyANSI)
+#converted 3 digit CountyANSI codes to 5 digits with StateANSI codes
+honey_county2$CountyANSI <- as.numeric(paste0(honey_county2$StateANSI,
+                                              honey_county2$CountyANSI))
+```
+
+
+## Data: Sources, Manipulation, Cleaning, and Tidying {.smaller}
+
+- NASS: [National Agriculture Statistics Service](https://quickstats.nass.usda.gov/)
+
+- MySQL: [Data Imported and Manipulated in MySQL](http://rpubs.com/chrisgmartin/HISB_AppendixOne)
+
+- Cleaning: Necessary conversions and ANSI code merging
+
+- Tidying:
+    - Tables were sorted by State name
+    - Tables were transposed for analysis
+
+```{r, eval=FALSE, echo=TRUE}
+#alphabatizing based on DataItem and State
+honey_county2 %>% 
+  arrange(., DataItem) %>% 
+  arrange(., State)
+
+#Transposing table by DataItem
+honey_county2[, c(2,4,5,6,7,9,10)] %>% 
+  spread(., DataItem, Value)
+```
+
+## Data: Exploration {.smaller}
+
+- Exploring Honey Production per Year
+
+```{r, echo=TRUE}
+kable(tail(honey_state2[which(honey_state2$DataItem ==
+                                'HONEY - PRODUCTION, MEASURED IN LB / COLONY'),
+                        c(3,10,13)] %>% 
+  group_by(Year) %>% 
+  summarise(value = sum(exp(Value)))))
+```
+
+
+## Data: Exploration {.smaller}
+
+- Exploring Bee Colonies
+
+- ChoroplethR Maps:
+
+```{r}
+HS_HoneyProdPer <- honey_state2[which(honey_state2$DataItem == 'HONEY - PRODUCTION, MEASURED IN LB / COLONY'), c(5,13)]
+
+HS_HonProdPlot <- HS_HoneyProdPer %>% 
+  group_by(State) %>% 
+  summarize(value = sum(Value))
+
+HS_HonProdPlot <- data.frame(region= state.regions$region, value= HS_HonProdPlot[match(state.regions$abb, HS_HonProdPlot$State), 2])
+```
+```{r, warning=FALSE, echo=TRUE}
+state_choropleth(HS_HonProdPlot, title = "Honey Bee Production per Colony",
+                 legend = "lb's of Honey", num_colors = 1)
+```
+
+
+## Data: Exploration {.smaller}
+
+- Exploring Bee Colonies
+
+- ChoroplethR Maps:
+
+```{r}
+HC_FertExp <- honey_county2[which(honey_county2$DataItem == 'FERTILIZER TOTALS, INCL LIME & SOIL CONDITIONERS - EXPENSE, MEASURED IN $'), c(8,11)]
+
+colnames(HC_FertExp) <- c('region', 'value')
+
+HC_FertPlot <- HC_FertExp %>% 
+  group_by(region) %>% 
+  summarize(value = sum(value))
+```
+```{r, warning=FALSE, echo=TRUE}
+county_choropleth(HC_FertPlot, title = "Fertilizer Expenditures", legend = "Amount of Fertilizer Expenses in $", num_colors = 1)
+```
+
+
+## Data: Exploration {.smaller}
+
+- Exploring Bee Colonies
+
+- ChoroplethR Maps
+
+- Exploration Summary:
+    - The number of honey bees has been dynamic in that the number of colonies decreased and increased
+    - Some states have more expenditures in chemicals and fertilizers than others
+    - There are plenty of acres of open horticulture in production for our wonderful bees to pollinate.
+
+
+## Inference {.smaller}
+
+- Summarising the Data:
+    - Summary statistics on production of honey per colony
+
+```{r, echo=TRUE}
+summary(honey_state3$'HONEY...PRODUCTION..MEASURED.IN.LB...COLONY')
+```
+
+
+## Inference: Production of Honey per Colony Changed from 1987 to 2015 {.smaller}
+
+```{r}
+StateProd2 <- honey_state3[,c(2,40)] %>% 
+  group_by(Year)
+colnames(StateProd2) <- c("Year","value")
+StateProd2 <- StateProd2 %>% 
+  group_by(Year) %>% 
+  summarise(value = sum(value))
+```
+
+```{r, echo=TRUE}
+plot_ly(StateProd2, x = Year, y = value, text = paste("Year: ", Year),
+        mode = "markers", color = value, size = value)
+```
+
+
+## Inference {.smaller}
+
+- Summarising the Data
+
+- Predicting Honey Production:
+    - Confidence Intervals
+
+```{r}
+population2 <- honey_state3[,c(2,40)]
+population2 <- unlist(population2[population2$Year == 1987,2])
+
+population3 <- honey_state3[,c(2,40)]
+population3 <- unlist(population3[population3$Year == 2015,2])
+
+samp_mean <- rep(NA, 50)
+samp_sd <- rep(NA, 50)
+n <- 25
+
+for(i in 1:50){
+  samp <- sample(population2, n)
+  samp_mean[i] <- mean(samp)
+  samp_sd[i] <- sd(samp)
+}
+lower_vector <- samp_mean - 1.96 * samp_sd / sqrt(n) 
+upper_vector <- samp_mean + 1.96 * samp_sd / sqrt(n)
+```
+
+```{r, echo=TRUE}
+c(lower_vector[1], upper_vector[1])
+mean(population2)
+mean(population3)
+```
+
+
+## Inference {.smaller}
+
+- Summarising the Data
+
+- Predicting Honey Production:
+    - Confidence Intervals
+    - Hypothesis Testing
+
+```{r}
+population4 <- honey_state3[,c(2,40)]
+population4 <- population4[population4$Year == 1987,1:2]
+population5 <- honey_state3[,c(2,40)]
+population5 <- population5[population5$Year == 2015,1:2]
+population6 <- bind_rows(population4, population5)
+colnames(population6) <- c("Year","Value")
+```
+
+```{r, warning=FALSE, echo=TRUE}
+inference(y = population6$Value, x = population6$Year, est = "mean",
+          type = "ht", null = 0, alternative = "twosided", method = "theoretical")
+```
+
+
+## Analysis {.smaller}
+
+- Linear Regression:
+    - Determining a casual relationship between the number of colonies and the production of honey per colony
+
+\[
+  \hat{lbs of honey produced per colony} = -7.10151 + 0.74615 * colonies
+\]
+
+
+## Analysis {.smaller}
+
+- Linear Regression
+
+```{r}
+Honey_Colonies <- honey_state3[,c(2,3,42,40)]
+colnames(Honey_Colonies) <- c("Year", "State", "Colonies","Honey")
+Honey_Colonies <- Honey_Colonies[complete.cases(Honey_Colonies[,3:4]),]
+hc1 <- lm(Colonies ~ Honey, data=Honey_Colonies)
+```
+```{r, echo=TRUE}
+qqnorm(hc1$residuals)
+qqline(hc1$residuals)
+#plot on next slide
+```
+
+## Analysis {.smaller}
+
+- Linear Regression
+
+- Multiple Linear Regression:
+    - Full Model
+    - Backward Elimination
+    - Forward Selection
+
+```{r}
+HoneyC_FullModel <- honey_county3[,c(2,6:27)]
+colnames(HoneyC_FullModel) <- c("Year", "CountyANSI", "ChemExp", "ChemOps", "CropOps", "CropSales", "CropOrgOps", "CropOrgSales", "FertExp", "FertOps", "HoneyOpsProd", "HoneyOpsSales", "HoneyProd", "HoneySales", "HoneyColOps", "HoneyColSales", "HortExcTVSTOps", "HortExcTVSTSales", "HortExcTAcres", "HortExcTIrgAcres", "HortExcTIrgOps", "HortUndProt")
+HoneyC_FullModel <- HoneyC_FullModel[complete.cases(HoneyC_FullModel[,13]),]
+HoneyC_FullModel[is.na(HoneyC_FullModel)] <- 0
+m_final <- lm(HoneyProd ~ HortUndProt + HoneySales + HoneyColSales + ChemExp + HoneyOpsSales + CropOrgSales + HoneyOpsProd + HortExcTAcres + ChemOps + FertOps + FertExp + HortExcTIrgOps + CropSales + HortExcTVSTOps + HortExcTIrgAcres + CropOps + HortExcTVSTSales, data = HoneyC_FullModel)
+```
+
+
+## Analysis: Linear Regression {.smaller}
+```{r, echo=TRUE}
+summary(m_final)
+```
+
+## Analysis {.smaller}
+
+- Linear Regression
+
+- Multiple Linear Regression:
+    - Full Model
+    - Backward Elimination
+    - Forward Selection
+    - Checking Model Assumptions
+
+```{r, echo=TRUE, eval=FALSE}
+qqnorm(m_final$residuals)
+qqline(m_final$residuals)
+```
+
+
+## Analysis: Multiple Linear Regression {.smaller}
+
+```{r}
+qqnorm(m_final$residuals)
+qqline(m_final$residuals)
+```
+
+
+## Conclusion: Plight of the Bumblebee {.smaller}
+
+I fear that we are no closer to answering the question posed at the start: Do we rely on the bees? It is perhaps due to my selection of explantory variables, or heavy skewing of the data by using averages and 0's for missing values, or it could be simply that we were dealing with a time series (square peg in a round hole). Regardless, the analysis was very successful in uncovering some interesting information in the decline of honey production per colony since 1987. Our fears may be different than what I had expected. Rather than focusing our attention on the number of bees (which we can inconclusively say we should continue to worry about), **we should focus our attention on a possible exponential decline in honey.**
+
+## Next Steps {.smaller}
+
+There are several directions we could go from here. One direction could be analysing the number of bees in a colony and see how they influence the amount of honey a colony can produce: is there a point of marginal returns whereby adding bees to a colony actually hinders the production of honey? How good are the bees at pollinating and how efficient are they? In the end, my goal is to save the bees and help man-kind learn to live alongside them (and nature in general).
+
+Another analysis would be to see the reverse of what I've done here: rather than see how these variables explain the honey production of a colony, see how honey production influences the other variables. This would give us much more insight into the over-arching question I posed at the outset: Do we rely on the bees?
+
+## Thank You
+
+- Contact
+    - Chris G Martin
+    - <chrisgmartin2@gmail.com>
+    
+- Resources
+    - GitHub: <https://github.com/chrisgmartin/HoneyIShrunkTheBees>
+    - Full Final Project: <http://rpubs.com/chrisgmartin/HISB>
+
+- Data Sources:
+    - NASS: <https://quickstats.nass.usda.gov>
+    - State Table: <http://www.statetable.com>
+    
